@@ -23,13 +23,13 @@ The sources now include mapy.cz and hillshade from DEM 5G.
 ![mapy.cz and hillshade for DMR 5G](doc/mapycz_dem5g.png)
  
 ### Contributors
-https://github.com/tkacovas Stela Tkáčová
-https://github.com/ruz76 Jan Růžička
-https://github.com/ruz02 Kateřina Růžičková
-https://github.com/MichaelaBozonova Michaela Božoňová
-https://github.com/BED0131
-https://github.com/kalab-oto Oto Kaláb
-https://github.com/mic0360
-https://github.com/Hro0082
-https://github.com/GUL0021 Tomáš Gulčík
-https://github.com/hyr0011
+* https://github.com/tkacovas Stela Tkáčová
+* https://github.com/ruz76 Jan Růžička
+* https://github.com/ruz02 Kateřina Růžičková
+* https://github.com/MichaelaBozonova Michaela Božoňová
+* https://github.com/BED0131
+* https://github.com/kalab-oto Oto Kaláb
+* https://github.com/mic0360
+* https://github.com/Hro0082
+* https://github.com/GUL0021 Tomáš Gulčík
+* https://github.com/hyr0011
