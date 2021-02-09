@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GeoDataDialogBase</class>
+ <widget class="QDialog" name="GeoDataDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>760</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GeoData</string>
+  </property>
+  <widget class="QPushButton" name="pushButtonLoadData">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>20</y>
+     <width>171</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Load Selected Data</string>
+   </property>
+  </widget>
+  <widget class="QTreeWidget" name="treeWidgetSources">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>521</width>
+     <height>511</height>
+    </rect>
+   </property>
+   <property name="columnCount">
+    <number>1</number>
+   </property>
+   <attribute name="headerVisible">
+    <bool>false</bool>
+   </attribute>
+   <column>
+    <property name="text">
+     <string notr="true">1</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QPushButton" name="pushButtonLoadRuianPlugin">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>60</y>
+     <width>171</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Import data from RUIAN</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>100</y>
+     <width>171</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>The plugin allows to append selected layers into the map and also if the layer is part of the service (WMS/XYZ) its source is append into the Browser panel of the QGIS.
+
+The plugin allows also to open RUIAN plugin dialog for import data from RUIAN service.</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonAbout">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>460</y>
+     <width>131</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/cropped-opengeolabs-logo-small.png</normaloff>icons/cropped-opengeolabs-logo-small.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>80</width>
+     <height>80</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelRuianError">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>380</y>
+     <width>171</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonSourceOptions">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>340</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Source Options</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
