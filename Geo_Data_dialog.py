@@ -51,8 +51,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         super(GeoDataDialog, self).__init__(parent)
         self.iface = iface
         self.setupUi(self)
-        self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
-        self.pushButtonAbout.clicked.connect(self.showAbout)
+        # self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
+        # self.pushButtonAbout.clicked.connect(self.showAbout)
         self.pushButtonLoadRuianPlugin.clicked.connect(self.load_ruian_plugin)
         self.pushButtonLoadData.clicked.connect(self.load_data)
         self.pushButtonSourceOptions.clicked.connect(self.show_source_options_dialog)
@@ -257,8 +257,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         if not ruian_found:
             self.labelRuianError.setText(QApplication.translate("GeoData","This functionality requires RUIAN plugin", None))
 
-    def showAbout(self):
-        try:
-            webbrowser.get().open("http://opengeolabs.cz")
-        except (webbrowser.Error):
-            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+    # def showAbout(self):
+    #     try:
+    #         webbrowser.get().open("http://opengeolabs.cz")
+    #     except (webbrowser.Error):
+    #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)

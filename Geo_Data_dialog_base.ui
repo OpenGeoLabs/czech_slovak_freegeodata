@@ -78,26 +78,6 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButtonAbout">
-   <property name="geometry">
-    <rect>
-     <x>580</x>
-     <y>460</y>
-     <width>131</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/cropped-opengeolabs-logo-small.png</normaloff>icons/cropped-opengeolabs-logo-small.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>80</width>
-     <height>80</height>
-    </size>
-   </property>
-  </widget>
   <widget class="QLabel" name="labelRuianError">
    <property name="geometry">
     <rect>
