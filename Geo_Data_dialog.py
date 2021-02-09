@@ -156,11 +156,12 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         for item in self.treeWidgetSources.selectedItems():
             if item.data(0, Qt.UserRole) is not None:
                 id = int(item.data(0, Qt.UserRole))
-                print(str(id))
-                if self.data_sources[id]['proc_class'].has_options_dialog():
+                # print(str(id))
+                # print(self.data_sources[id])
+                if self.data_sources[id]['proc_class'] is not None and self.data_sources[id]['proc_class'].has_options_dialog():
                     self.selectedSource = id
                     self.pushButtonSourceOptions.setEnabled(True)
-                    print("HAS OPTIONS DIALOG")
+                    # print("HAS OPTIONS DIALOG")
 
     def handleChanged(self, item, column):
         # Get his status when the check status changes.
