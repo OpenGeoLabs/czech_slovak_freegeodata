@@ -3,17 +3,17 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=GeoData
+name=GeoData CZ/SK
 qgisMinimumVersion=3.0
 description=This plugin gathers cz/sk data sources.
 version=0.1
-author=Test
-email=test
+author=OpenGeoLabs and contributors
+email=info@gismentors.cz
 
 about=This plugin gathers data sources that provide geospatial data in various formats. These data sources are from Czech republic and Slovakia.
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/OpenGeoLabs/czech_slovak_freegeodata/issues
+repository=https://github.com/OpenGeoLabs/czech_slovak_freegeodata
 # End of mandatory metadata
 
 # Recommended items:
@@ -23,13 +23,13 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python, cz, sk
+tags=geodata, wms, xyz, cz, sk
 
 homepage=http://homepage
 category=Plugins
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
