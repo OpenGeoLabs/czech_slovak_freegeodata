@@ -39,6 +39,8 @@ from qgis.PyQt.QtWidgets import *
 
 import importlib, inspect
 from .data_sources.source import Source
+from .crs_trans.CoordinateTransformation import CoordinateTransformation
+from .crs_trans.CoordinateTransformationList import CoordinateTransformationList
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -61,6 +63,9 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
         self.load_sources_into_tree()
         self.selectedSource = -1
+
+        self.transformations = CoordinateTransformationList()
+        self.load_crs_transformations()
 
     def get_url(self, config):
         if config['general']['type'] == 'WMS':
@@ -262,3 +267,53 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     #         webbrowser.get().open("http://opengeolabs.cz")
     #     except (webbrowser.Error):
     #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+
+    def load_crs_transformations(self):
+        """
+        Loads available transformatios defined in crs_trans.ini
+        """
+
+        transConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "crs_trans.ini")
+        transConfig = configparser.ConfigParser()
+
+        try:
+            transConfig.read(transConfigFile)
+        except Exception:
+            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                                QApplication.translate("GeoData", "Unable to read coordinate transformations definition file.", None),
+                                                level=Qgis.Critical)
+            raise Exception("Unable to read coordinate transformations definition file.")
+
+        for transSection in transConfig:
+            if transSection != "DEFAULT":
+                transSectionContent = transConfig[transSection]
+
+                regions = transSectionContent.get("Regions")
+                if isinstance(regions, str) and regions != "":
+                    regions = regions.split(" ")
+                crsFrom = transSectionContent.get("CrsFrom")
+                crsTo = transSectionContent.get("CrsTo")
+                transformation = transSectionContent.get("Transf")
+                gridFileUrl = transSectionContent.get("ShiftFile")
+
+                if gridFileUrl == "":
+                    gridFileUrl = None
+
+                # print("--------------------\nSection: {}\nRegion: {}\nCrsFrom: {}\nCrsTo: {}\nTransformation: {}\nShiftFile: {}".format(
+                #     transSection, regions, crsFrom, crsTo, transformation, gridFileUrl))
+
+                if regions is None or regions == "" or \
+                   crsFrom is None or crsFrom == "" or \
+                   crsTo is None or crsTo == "" or \
+                   transformation is None or transformation == "":
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping incomplete transformation definition section {}.".format(transSection), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
+
+                try:
+                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, gridFileUrl)
+                    self.transformations.append(transf)
+                except Exception:
+                    continue
