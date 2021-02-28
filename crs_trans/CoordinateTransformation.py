@@ -23,6 +23,7 @@ class CoordinateTransformation:
 
         self.crsFrom = QgsCoordinateReferenceSystem(crsFrom)
         self.crsTo = QgsCoordinateReferenceSystem(crsTo)
+        self.gridFileUrl = gridFileUrl
 
         if not self.crsFrom.isValid() or not self.crsTo.isValid():
             if not self.crsFrom.isValid():
@@ -39,6 +40,7 @@ class CoordinateTransformation:
         # Determines if defined transformation is ProjString, or name of known transformation
         if transformation[0] == "+":  # ProjString
             self.transformation = transformation
+            self.fullTransformation = None
         else:
             matchingTransformation = None
             for qdt in QgsDatumTransform.operations(self.crsFrom, self.crsTo):
@@ -52,3 +54,33 @@ class CoordinateTransformation:
                                                level=Qgis.Warning,
                                                duration=5)
                 return
+
+            self.transformation = matchingTransformation.proj
+            self.fullTransformation = matchingTransformation
+
+    def __str__(self):
+        outStr = 50 * "-" + "\n"
+        outStr += "CoordinateTransformation from {} to {}\nRegions: {}\nTronsformation definition: {}\nGrid file URL: {}".format(
+            self.crsFrom.authid(), self.crsTo.authid(), self.regions, self.transformation, self.gridFileUrl)
+        outStr += "\n" + 50 * "-"
+        return outStr
+
+    def getRegions(self):
+        """
+        Returns list of regions, which this transformation belongs to.
+        """
+        return self.regions
+
+    def addToConfig(self):
+        """
+        Adds this transformation into QGIS configuration as default for specified pairs of coordinate systems.
+        """
+
+        qgisConfig = QgsSettings()
+        section = "Projections"
+
+        authFrom = self.crsFrom.authid()
+        authTo = self.crsTo.authid()
+        transfProj = self.transformation
+
+        qgisConfig.setValue("{}/{}//{}_coordinateOp".format(section, authFrom, authTo), transfProj)
