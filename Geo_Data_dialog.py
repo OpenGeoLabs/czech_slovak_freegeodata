@@ -41,6 +41,8 @@ import importlib, inspect
 from .data_sources.source import Source
 from .crs_trans.CoordinateTransformation import CoordinateTransformation
 from .crs_trans.CoordinateTransformationList import CoordinateTransformationList
+from .crs_trans.ShiftGrid import ShiftGrid
+from .crs_trans.ShiftGridList import ShiftGridList
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -64,6 +66,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.load_sources_into_tree()
         self.selectedSource = -1
 
+        self.grids = ShiftGridList()
+        self.load_shift_grids()
         self.transformations = CoordinateTransformationList()
         self.load_crs_transformations()
 
@@ -294,10 +298,18 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 crsFrom = transSectionContent.get("CrsFrom")
                 crsTo = transSectionContent.get("CrsTo")
                 transformation = transSectionContent.get("Transf")
-                gridFileUrl = transSectionContent.get("ShiftFile")
 
-                if gridFileUrl == "":
-                    gridFileUrl = None
+                grid = transSectionContent.get("Grid")
+
+                if grid == "":
+                    grid = None
+
+                if grid is not None and len(self.grids.getGridsByKeys(grid)) != 1:
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping definition section {} because grid {} is unknown.".format(transSection, grid), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
 
                 # print("--------------------\nSection: {}\nRegion: {}\nCrsFrom: {}\nCrsTo: {}\nTransformation: {}\nShiftFile: {}".format(
                 #     transSection, regions, crsFrom, crsTo, transformation, gridFileUrl))
@@ -313,7 +325,43 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     continue
 
                 try:
-                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, gridFileUrl)
+                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, grid)
                     self.transformations.append(transf)
+                except Exception:
+                    continue
+
+    def load_shift_grids(self):
+        """
+        Loads available shift grids defined in grids.ini
+        """
+
+        gridsConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "grids.ini")
+        gridsConfig = configparser.ConfigParser()
+
+        try:
+            gridsConfig.read(gridsConfigFile)
+        except Exception:
+            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                                QApplication.translate("GeoData", "Unable to read grids definition file.", None),
+                                                level=Qgis.Critical)
+            raise Exception("Unable to read grids definition file.")
+
+        for grid in gridsConfig:
+            if grid != "DEFAULT":
+                gridContent = gridsConfig[grid]
+
+                gridFileUrl = gridContent.get("GridFileUrl")
+                gridFileName = gridContent.get("GridFileName")
+
+                if gridFileUrl is None or gridFileName is None:
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping grid definition of grid {}.".format(grid), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
+
+                try:
+                    shiftGrid = ShiftGrid(grid, gridFileUrl, gridFileName)
+                    self.grids.append(shiftGrid)
                 except Exception:
                     continue

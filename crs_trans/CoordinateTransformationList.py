@@ -12,7 +12,7 @@ class CoordinateTransformationList(list):
     def __str__(self):
         outStr = ""
         for transform in self:
-            outStr += str(transform)
+            outStr += str(transform) + "\n"
         return outStr
 
     def getTransformationsForRegion(self, regionCode):

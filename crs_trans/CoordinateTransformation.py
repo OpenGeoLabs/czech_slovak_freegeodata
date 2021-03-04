@@ -8,13 +8,13 @@ class CoordinateTransformation:
     This class represents coordinate transformation definition between two coordinate systems.
     """
 
-    def __init__(self, regions, crsFrom, crsTo, transformation, gridFileUrl=None):
+    def __init__(self, regions, crsFrom, crsTo, transformation, grid=None):
         """
         region - defines region, for which this transformation should be used
         crsFrom - defines source CRS for this transformation. May be anything that can be handled by QgsCoordinateReferenceSystem constructor.
         crsTo - defines target CRS for this transformation. May be anything that can be handled by QgsCoordinateReferenceSystem constructor.
         tronsformation - defines transformation method. May be name of QgsCoordinateTransform or ProjString.
-        gridFileUrl - optional, defines URL to download grid shift file in case transformation needs one
+        grid - optional, reference to grid, that needs to be present
         """
 
         assert isinstance(regions, (list, tuple))
@@ -23,7 +23,7 @@ class CoordinateTransformation:
 
         self.crsFrom = QgsCoordinateReferenceSystem(crsFrom)
         self.crsTo = QgsCoordinateReferenceSystem(crsTo)
-        self.gridFileUrl = gridFileUrl
+        self.grid = grid
 
         if not self.crsFrom.isValid() or not self.crsTo.isValid():
             if not self.crsFrom.isValid():
@@ -60,8 +60,8 @@ class CoordinateTransformation:
 
     def __str__(self):
         outStr = 50 * "-" + "\n"
-        outStr += "CoordinateTransformation from {} to {}\nRegions: {}\nTronsformation definition: {}\nGrid file URL: {}".format(
-            self.crsFrom.authid(), self.crsTo.authid(), self.regions, self.transformation, self.gridFileUrl)
+        outStr += "CoordinateTransformation from {} to {}\nRegions: {}\nTronsformation definition: {}\nGrid: {}".format(
+            self.crsFrom.authid(), self.crsTo.authid(), self.regions, self.fullTransformation, self.grid)
         outStr += "\n" + 50 * "-"
         return outStr
 
