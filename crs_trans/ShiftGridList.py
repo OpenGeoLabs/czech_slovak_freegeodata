@@ -24,9 +24,3 @@ class ShiftGridList(list):
                     outGrids.append(grid)
 
         return outGrids
-
-    def isPresentInSystem(self):
-        """
-        Returns True if grid is already present in system and does not need to be downloaded.
-        """
-        pass
