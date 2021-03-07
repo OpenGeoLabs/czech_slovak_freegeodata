@@ -1,6 +1,7 @@
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
+from .ShiftGridList import ShiftGridList
 
 
 class CoordinateTransformation:
@@ -71,10 +72,28 @@ class CoordinateTransformation:
         """
         return self.regions
 
-    def addToConfig(self):
+    def addToConfig(self, grids):
         """
         Adds this transformation into QGIS configuration as default for specified pairs of coordinate systems.
+        grids - ShfitGridList containing available grids
         """
+
+        assert isinstance(grids, ShiftGridList)
+
+        if self.grid is not None:
+            try:
+                shiftGrid = grids.getGridsByKeys(self.grid)
+                if len(shiftGrid) > 0:
+                    shiftGrid.downloadAll()
+                else:
+                    raise Exception("Grid not found.")
+
+            except Exception:
+                iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                               QApplication.translate("GeoData", "Unbale to download grid {} for transformation from {} to {}.".format(self.grid, self.crsFrom.authid(), self.crsTo.authid()), None),
+                                               level=Qgis.Warning,
+                                               duration=5)
+                return
 
         qgisConfig = QgsSettings()
         section = "Projections"
@@ -82,5 +101,7 @@ class CoordinateTransformation:
         authFrom = self.crsFrom.authid()
         authTo = self.crsTo.authid()
         transfProj = self.transformation
+
+
 
         qgisConfig.setValue("{}/{}//{}_coordinateOp".format(section, authFrom, authTo), transfProj)

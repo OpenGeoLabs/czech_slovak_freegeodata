@@ -24,3 +24,11 @@ class ShiftGridList(list):
                     outGrids.append(grid)
 
         return outGrids
+
+    def downloadAll(self):
+        """
+        Downloads all contained shift grids.
+        """
+
+        for grid in self:
+            grid.download()
