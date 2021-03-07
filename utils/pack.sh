@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rm dist/geodata_cz_sk_0.1.zip
+rm ../dist/geodata_cz_sk_0.1.zip
 
 cd ..
 mkdir -p dist/data
@@ -13,6 +13,8 @@ mkdir -p dist/i18n
 cp -r i18n/* dist/i18n/
 mkdir -p dist/icons
 cp icons/* dist/icons/
+mkdir -p dist/help
+cp -r help dist/
 cp * dist
 
 cd dist
