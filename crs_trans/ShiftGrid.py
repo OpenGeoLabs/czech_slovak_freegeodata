@@ -30,13 +30,17 @@ class ShiftGrid:
         self.fullGridPath = os.path.join(ShiftGrid.gridDirectory, self.fileName)
         destinationFileName = os.path.basename(urlparse(self.fileUrl).path)
         self.fullDownloadedFilePath = os.path.join(ShiftGrid.gridDirectory, destinationFileName)
+        isPresent = False
 
     def isPresent(self):
         """
         Returns True if grid is already present and does not need to be downloaded.
         """
 
-        return os.path.isfile(self.fullGridPath)
+        if self.isPresent:
+            return True
+        else:
+            return os.path.isfile(self.fullGridPath)
 
     def downloadFailed(self):
         """
@@ -55,6 +59,7 @@ class ShiftGrid:
         try:
             with ZipFile(self.fullDownloadedFilePath, "r") as zipfile:
                 zipfile.extractall(ShiftGrid.gridDirectory)
+            self.isPresent = True
         except:
             iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
                                            QApplication.translate("GeoData", "Unable extract grid file for grid {}.".format(self.key), None),
@@ -63,10 +68,11 @@ class ShiftGrid:
 
     def download(self):
         """
-        Downloads grid and puts it into correct directory, so it is usable
-        for QGIS. If file downloadable from internet needs to be
-        decompressed, renamed or any other processing needs to be
-        done, dedicated function has to be defined and used in downloader.downloadCompleted.connect
+        Downloads grid and puts it into correct directory, so it is
+        usable for QGIS. If file downloadable from internet needs to
+        be decompressed, renamed or any other processing needs to be
+        done, dedicated function has to be defined and used in
+        downloader.downloadCompleted.connect
         """
 
         if not os.path.isdir(ShiftGrid.gridDirectory):

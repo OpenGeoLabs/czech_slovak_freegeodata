@@ -292,17 +292,14 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             if transSection != "DEFAULT":
                 transSectionContent = transConfig[transSection]
 
-                regions = transSectionContent.get("Regions")
-                if isinstance(regions, str) and regions != "":
+                regions = transSectionContent.get("Regions", None)
+                if isinstance(regions, str) and regions is not None:
                     regions = regions.split(" ")
                 crsFrom = transSectionContent.get("CrsFrom")
                 crsTo = transSectionContent.get("CrsTo")
                 transformation = transSectionContent.get("Transf")
 
-                grid = transSectionContent.get("Grid")
-
-                if grid == "":
-                    grid = None
+                grid = transSectionContent.get("Grid", None)
 
                 if grid is not None and len(self.grids.getGridsByKeys(grid)) != 1:
                     self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
