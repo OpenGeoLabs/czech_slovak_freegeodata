@@ -26,6 +26,7 @@ class CoordinateTransformation:
 
         self.crsFrom = QgsCoordinateReferenceSystem(crsFrom)
         self.crsTo = QgsCoordinateReferenceSystem(crsTo)
+        self.grids = grids
         self.grid = grid
 
         if not self.crsFrom.isValid() or not self.crsTo.isValid():

@@ -17,7 +17,7 @@ class CoordinateTransformationList(list):
             outStr += str(transform) + "\n"
         return outStr
 
-    def getListOfRegions(self):
+    def getRegions(self):
         """
         Returns list of available regions.
         """
@@ -42,12 +42,20 @@ class CoordinateTransformationList(list):
                 outTarnsforms.append(transform)
         return outTarnsforms
 
-    def applyTransforations(self):
+    def applyTransforations(self, region=None):
         """
         Adds all transformations conatined in this list to QGIS configuration file as defaults.
+        region - optional region filter. When specified only transformations of defined region will be applied.
         """
 
-        for transform in self:
+        assert isinstance(region, str)
+
+        if region is None:
+            transformatios = self
+        else:
+            transformations = self.getTransformationsForRegion(region)
+
+        for transform in transformations:
             transform.addToConfig()
 
         iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
