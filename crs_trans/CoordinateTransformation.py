@@ -9,16 +9,18 @@ class CoordinateTransformation:
     This class represents coordinate transformation definition between two coordinate systems.
     """
 
-    def __init__(self, regions, crsFrom, crsTo, transformation, grid=None):
+    def __init__(self, regions, crsFrom, crsTo, transformation, grids, grid=None):
         """
         region - defines region, for which this transformation should be used
         crsFrom - defines source CRS for this transformation. May be anything that can be handled by QgsCoordinateReferenceSystem constructor.
         crsTo - defines target CRS for this transformation. May be anything that can be handled by QgsCoordinateReferenceSystem constructor.
-        tronsformation - defines transformation method. May be name of QgsCoordinateTransform or ProjString.
+        transformation - defines transformation method. May be name of QgsCoordinateTransform or ProjString.
+        grids - list of known shift grids
         grid - optional, reference to grid, that needs to be present
         """
 
         assert isinstance(regions, (list, tuple))
+        assert isinstance(grids, ShiftGridList)
 
         self.regions = regions
 
@@ -72,17 +74,14 @@ class CoordinateTransformation:
         """
         return self.regions
 
-    def addToConfig(self, grids):
+    def addToConfig(self):
         """
         Adds this transformation into QGIS configuration as default for specified pairs of coordinate systems.
-        grids - ShfitGridList containing available grids
         """
-
-        assert isinstance(grids, ShiftGridList)
 
         if self.grid is not None:
             try:
-                shiftGrid = grids.getGridsByKeys(self.grid)
+                shiftGrid = self.grids.getGridsByKeys(self.grid)
                 if len(shiftGrid) > 0:
                     shiftGrid.downloadAll()
                 else:

@@ -322,7 +322,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     continue
 
                 try:
-                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, grid)
+                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, self.grids, grid)
                     self.transformations.append(transf)
                 except Exception:
                     continue

@@ -42,16 +42,13 @@ class CoordinateTransformationList(list):
                 outTarnsforms.append(transform)
         return outTarnsforms
 
-    def addAllTransformationsToConfig(self, grids):
+    def applyTransforations(self):
         """
         Adds all transformations conatined in this list to QGIS configuration file as defaults.
-        grids - ShfitGridList containing available grids
         """
 
-        assert isinstance(grids, ShiftGridList)
-
         for transform in self:
-            transform.addToConfig(grids)
+            transform.addToConfig()
 
         iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
                                        QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
