@@ -63,7 +63,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.selectedSource = -1
 
     def get_url(self, config):
-        if config['general']['type'] == 'WMS':
+        if config['general']['type'].upper() == 'WMS':
             # TODO check CRS? Maybe.
             url = 'url=' + config['wms']['url']
             layers = config['wms']['layers'].split(',')
@@ -75,8 +75,19 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             url += "&" + config['wms']['params']
             return url
 
-        if config['general']['type'] == 'TMS':
+        elif config['general']['type'].upper() == 'TMS':
             return "type=xyz&url=" + config['tms']['url']
+
+        elif config['general']['type'].upper() == 'WMTS':
+            url = config['wmts']['url']
+            tilematrixset = config['wmts']['tilematrixset']
+            layer = config['wmts']['layer']
+            frmt = config['wmts']['format']
+            url = "WMTS:{url},layer={layer},tilematrixset={tilematrixset},format={frmt}".format(
+                    url=url, layer=layer, frmt=frmt,
+                    tilematrixset=tilematrixset)
+            return url
+
 
     def load_data(self):
         # print("LOAD DATA")
@@ -84,9 +95,12 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             # print(data_source)
             if data_source['checked'] == "True":
                 if "WMS" in data_source['type'] or "TMS" in data_source['type']:
-                    self.add_layer(data_source)
+                    self.add_layer(data_source, layer_type="wms")
                     self.addSourceToBrowser(data_source)
-                if "PROC" in data_source['type']:
+                elif "WMTS" in data_source["type"]:
+                    self.add_layer(data_source, layer_type="gdal")
+                    self.addSourceToBrowser(data_source)
+                elif "PROC" in data_source['type']:
                     if data_source['proc_class'] is not None:
                         self.add_proc_data_source_layer(data_source)
 
@@ -121,13 +135,16 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                   | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
 
             url = ""
+            proc_class = None
             if "WMS" in config['general']['type'] or "TMS" in config['general']['type']:
                 url = self.get_url(config)
 
-            proc_class = None
-            if "PROC" in config['general']['type']:
-                proc_class = self.get_proc_class(path)
+            elif "WMTS" in config['general']['type']:
+                url = self.get_url(config)
 
+            elif "PROC" in config['general']['type']:
+                proc_class = self.get_proc_class(path)
+            
             self.data_sources.append(
                 {
                     "type": config['general']['type'],
@@ -184,13 +201,15 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.selectedSource >= 0:
             self.data_sources[self.selectedSource]['proc_class'].show_options_dialog()
 
-    def add_layer(self, data_source):
+    def add_layer(self, data_source, layer_type="wms"):
         # print("Add Layer " + (self.wms_sources[index]))
         # rlayer = QgsRasterLayer(self.wms_sources[index], 'MA-ALUS', 'wms')
-        print(data_source['url'])
-        layer = QgsRasterLayer(data_source['url'], data_source['alias'], 'wms')
-        # TODO check if the layer is valid
-        QgsProject.instance().addMapLayer(layer)
+        layer = QgsRasterLayer(data_source['url'], data_source['alias'], layer_type)
+        if layer.isValid():
+            QgsProject.instance().addMapLayer(layer)
+        else:
+            print(data_source['url'])
+            iface.messageBar().pushMessage("Error", "The layer was not valid and could not be loaded.", level=Qgis.Critical)
 
     def get_proc_class(self, path):
         current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
