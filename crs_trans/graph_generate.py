@@ -61,9 +61,11 @@ for transSection in transConfig:
         opositeFound = False
         for definedTrans in transfs:
             if definedTrans["from"] == transformation["to"] and \
-               definedTrans["to"] == transformation["from"]:
+               definedTrans["to"] == transformation["from"] and \
+               definedTrans["bidir"] == False:
                 definedTrans["bidir"] = True
                 opositeFound = True
+                break
 
         if not opositeFound and (args.region is None or (args.region is not None and args.region in regions)):
             transfs.append(transformation)
