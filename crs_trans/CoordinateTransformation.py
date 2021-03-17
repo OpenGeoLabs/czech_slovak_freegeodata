@@ -39,7 +39,7 @@ class CoordinateTransformation:
                                            QApplication.translate("GeoData", "Can not create CRS from definition: {}".format(invalidCrsDefinition), None),
                                            level=Qgis.Warning,
                                            duration=5)
-            return
+            raise Exception("Can not create CRS")
 
         # Determines if defined transformation is ProjString, or name of known transformation
         if transformation[0] == "+":  # ProjString
@@ -57,7 +57,7 @@ class CoordinateTransformation:
                                                QApplication.translate("GeoData", "Unable to find transformation between {} and {} with name: {}.".format(crsFrom, crsTo, transformation), None),
                                                level=Qgis.Warning,
                                                duration=5)
-                return
+                raise Exception("Can not find transformation")
 
             self.transformation = matchingTransformation.proj
             self.fullTransformation = matchingTransformation
@@ -101,7 +101,5 @@ class CoordinateTransformation:
         authFrom = self.crsFrom.authid()
         authTo = self.crsTo.authid()
         transfProj = self.transformation
-
-
 
         qgisConfig.setValue("{}/{}//{}_coordinateOp".format(section, authFrom, authTo), transfProj)

@@ -48,16 +48,29 @@ class CoordinateTransformationList(list):
         region - optional region filter. When specified only transformations of defined region will be applied.
         """
 
-        assert isinstance(region, str)
+        if region is not None:
+            assert isinstance(region, str)
 
         if region is None:
-            transformatios = self
+            transformations = self
         else:
             transformations = self.getTransformationsForRegion(region)
 
-        for transform in transformations:
-            transform.addToConfig()
+            if len(transformations) == 0:
+                iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warting", None),
+                                               QApplication.translate("GeoData", "No transformation found for region {}.".format(region)),
+                                               level=Qgis.Warning,
+                                               duration=5)
+                return
 
-        iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
-                                       QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
-                                       level=Qgis.Info)
+        if len(transformations) > 0:
+           for transform in transformations:
+               transform.addToConfig()
+
+           iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
+                                          QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
+                                          level=Qgis.Info)
+        else:
+            iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
+                                          QApplication.translate("GeoData", "No transformation selected."),
+                                          level=Qgis.Info)
