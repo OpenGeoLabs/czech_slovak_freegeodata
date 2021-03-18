@@ -64,13 +64,13 @@ class CoordinateTransformationList(list):
                 return
 
         if len(transformations) > 0:
-           for transform in transformations:
-               transform.addToConfig()
+            for transform in transformations:
+                transform.addToConfig()
 
-           iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
-                                          QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
-                                          level=Qgis.Info)
+            iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
+                                           QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
+                                           level=Qgis.Info)
         else:
             iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
-                                          QApplication.translate("GeoData", "No transformation selected."),
-                                          level=Qgis.Info)
+                                           QApplication.translate("GeoData", "No transformation selected."),
+                                           level=Qgis.Info)

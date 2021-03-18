@@ -30,14 +30,14 @@ class ShiftGrid:
         self.fullGridPath = os.path.join(ShiftGrid.gridDirectory, self.fileName)
         destinationFileName = os.path.basename(urlparse(self.fileUrl).path)
         self.fullDownloadedFilePath = os.path.join(ShiftGrid.gridDirectory, destinationFileName)
-        isPresent = False
+        self.present = False
 
     def isPresent(self):
         """
         Returns True if grid is already present and does not need to be downloaded.
         """
 
-        if self.isPresent:
+        if self.present:
             return True
         else:
             return os.path.isfile(self.fullGridPath)
@@ -59,12 +59,16 @@ class ShiftGrid:
         try:
             with ZipFile(self.fullDownloadedFilePath, "r") as zipfile:
                 zipfile.extractall(ShiftGrid.gridDirectory)
-            self.isPresent = True
-        except:
+            self.present = True
+        except Exception:
             iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
                                            QApplication.translate("GeoData", "Unable extract grid file for grid {}.".format(self.key), None),
                                            level=Qgis.Critical,
                                            duration=5)
+        try:
+            os.remove(self.fullDownloadedFilePath)
+        except Exception:
+            pass
 
     def download(self):
         """
@@ -80,7 +84,8 @@ class ShiftGrid:
                 os.mkdir(ShiftGrid.gridDirectory)
             except Exception:
                 iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
-                                               QApplication.translate("GeoData", "Unable to create directory {} to download grid {}.".format(ShiftGrid.gridDirectory, self.key), None),
+                                               QApplication.translate("GeoData", "Unable to create directory {} to download grid {}.".format(
+                                                   ShiftGrid.gridDirectory, self.key), None),
                                                level=Qgis.Critical,
                                                duration=5)
                 return
@@ -97,6 +102,6 @@ class ShiftGrid:
 
             downloader.downloadExited.connect(loop.quit)
             downloader.downloadError.connect(self.downloadFailed)
-            downloader.downloadCompleted.connect(self.downloadCompletedJtsk03)
+            downloader.downloadCompleted.connect(successFunction)
             downloader.startDownload()
             loop.exec_()

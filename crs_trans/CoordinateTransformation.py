@@ -54,7 +54,8 @@ class CoordinateTransformation:
 
             if matchingTransformation is None:
                 iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
-                                               QApplication.translate("GeoData", "Unable to find transformation between {} and {} with name: {}.".format(crsFrom, crsTo, transformation), None),
+                                               QApplication.translate("GeoData", "Unable to find transformation between {} and {} with name: {}.".format(
+                                                   crsFrom, crsTo, transformation), None),
                                                level=Qgis.Warning,
                                                duration=5)
                 raise Exception("Can not find transformation")
@@ -90,7 +91,8 @@ class CoordinateTransformation:
 
             except Exception:
                 iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
-                                               QApplication.translate("GeoData", "Unbale to download grid {} for transformation from {} to {}.".format(self.grid, self.crsFrom.authid(), self.crsTo.authid()), None),
+                                               QApplication.translate("GeoData", "Unbale to download grid {} for transformation from {} to {}.".format(
+                                                   self.grid, self.crsFrom.authid(), self.crsTo.authid()), None),
                                                level=Qgis.Warning,
                                                duration=5)
                 return
