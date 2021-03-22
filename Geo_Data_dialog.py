@@ -83,9 +83,10 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             tilematrixset = config['wmts']['tilematrixset']
             layer = config['wmts']['layer']
             frmt = config['wmts']['format']
-            url = "WMTS:{url},layer={layer},tilematrixset={tilematrixset},format={frmt}".format(
-                    url=url, layer=layer, frmt=frmt,
-                    tilematrixset=tilematrixset)
+            crs = config['wmts']['crs']
+            url = "contextualWMSLegend=0&featureCount=10&crs={crs}&format={frmt}&layers={layer}&styles=default&tileMatrixSet={tilematrixset}&url={url}".format(
+                    url=url, tilematrixset=tilematrixset, layer=layer,
+                    crs=crs, frmt=frmt)
             return url
 
 
@@ -98,7 +99,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.add_layer(data_source, layer_type="wms")
                     self.addSourceToBrowser(data_source)
                 elif "WMTS" in data_source["type"]:
-                    self.add_layer(data_source, layer_type="gdal")
+                    self.add_layer(data_source, layer_type="wms")
                     self.addSourceToBrowser(data_source)
                 elif "PROC" in data_source['type']:
                     if data_source['proc_class'] is not None:
@@ -205,6 +206,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         # print("Add Layer " + (self.wms_sources[index]))
         # rlayer = QgsRasterLayer(self.wms_sources[index], 'MA-ALUS', 'wms')
         layer = QgsRasterLayer(data_source['url'], data_source['alias'], layer_type)
+        print(data_source, layer_type)
         if layer.isValid():
             QgsProject.instance().addMapLayer(layer)
         else:
