@@ -277,6 +277,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         Loads available transformatios defined in crs_trans.ini
         """
 
+        projVersion = QgsProjUtils.projVersionMajor()
+
         transConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "crs_trans.ini")
         transConfig = configparser.ConfigParser()
 
@@ -297,9 +299,17 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     regions = regions.split(" ")
                 crsFrom = transSectionContent.get("CrsFrom")
                 crsTo = transSectionContent.get("CrsTo")
-                transformation = transSectionContent.get("Transf")
 
-                grid = transSectionContent.get("Grid", None)
+                # TransfOld is used only for Proj version 6 and only if present
+                if projVersion == 6 and "TransfOld" in [x[0] for x in transConfig.items(transSection)]:
+                    transformation = transSectionContent.get("TransfOld")
+                else:
+                    transformation = transSectionContent.get("Transf")
+
+                if projVersion == 6:
+                    grid = transSectionContent.get("GridOld", None)
+                else:
+                    grid = transSectionContent.get("Grid", None)
 
                 if grid is not None and len(self.grids.getGridsByKeys(grid)) != 1:
                     self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),

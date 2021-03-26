@@ -15,7 +15,8 @@ class ShiftGrid:
     Represents shift grid needed to enable certain transformations.
     """
 
-    gridDirectory = os.path.join(QgsApplication.qgisSettingsDirPath(), "proj")
+    # gridDirectory = os.path.join(QgsApplication.qgisSettingsDirPath(), "proj")
+    gridDirectory = QgsProjUtils.searchPaths()[-1]
 
     def __init__(self, gridKey, gridFileUrl, gridFileName):
         """
@@ -55,6 +56,12 @@ class ShiftGrid:
         """
         Defines actions made after succesfull download of JTSK03_JTSK grid.
         """
+        pass
+
+    def downloadCompletedJtsk03Gsb(self):
+        """
+        Defines actions made after succesfull download of JTSK03_JTSK_gsb grid.
+        """
 
         try:
             with ZipFile(self.fullDownloadedFilePath, "r") as zipfile:
@@ -93,6 +100,8 @@ class ShiftGrid:
         # based on gird key, this decides, how it should be processed
         if self.key == "JTSK03_JTSK":
             successFunction = self.downloadCompletedJtsk03
+        elif self.key == "JTSK03_JTSK_gsb":
+            successFunction = self.downloadCompletedJtsk03Gsb
         else:
             raise NotImplementedError
 
