@@ -26,10 +26,13 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu, QMessageBox, QDialog
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu, QMessageBox, QDialog
 
+from qgis.core import QgsSettings
+
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .Geo_Data_dialog import GeoDataDialog
+from .Region_dialog import RegionDialog
 import os.path
 
 
@@ -188,14 +191,28 @@ class GeoData:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-            self.dlg = GeoDataDialog(self.iface)
+            self.dlg_region = RegionDialog(self.iface)
+            self.dlg_main = GeoDataDialog(self.iface)
 
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == "":
+            # show the dialog
+            self.dlg_region.show()
+            # Run the dialog event loop
+            result = self.dlg_region.exec_()
+            # See if OK was pressed
+            if result:
+                # Do something useful here - delete the line containing pass and
+                # substitute with your code.
+                pass
+        else:
+            # show the dialog
+            self.dlg_main.show()
+            # Run the dialog event loop
+            result = self.dlg_main.exec_()
+            # See if OK was pressed
+            if result:
+                # Do something useful here - delete the line containing pass and
+                # substitute with your code.
+                pass
