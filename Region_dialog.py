@@ -50,12 +50,12 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, parent=None, status="start"):
+    def __init__(self, iface, parent=None, start=True):
         """Constructor."""
         super(RegionDialog, self).__init__(parent)
         self.iface = iface
         self.setupUi(self)
-        self.status = status
+        self.start = start
         self.pushButtonSVK.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/svk.png")))
         self.pushButtonCZE.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cze.png")))
         self.pushButtonSVK.clicked.connect(self.setRegionSVK)
@@ -66,17 +66,22 @@ class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.transformations = CoordinateTransformationList()
         self.load_crs_transformations()
 
+    def setStart(self, start):
+        self.start = start
+
     def setRegion(self, region):
         self.transformations.applyTransforations(region)
         QMessageBox.information(None, QApplication.translate("GeoData", "Info", None),
                                 QApplication.translate("GeoData", "You have to restart QGIS to apply all settings.", None))
         s = QgsSettings()
         s.setValue("geodata_cz_sk/region", region)
-        if self.status == "start":
+        if self.start:
             self.hide()
             gdd = GeoDataDialog(self.iface)
             gdd.show()
             gdd.exec_()
+        else:
+            self.hide()
 
     def setRegionSVK(self):
         self.setRegion("SVK")

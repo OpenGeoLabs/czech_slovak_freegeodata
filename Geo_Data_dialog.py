@@ -50,16 +50,19 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, parent=None):
+    def __init__(self, iface, regiondialog, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
         self.iface = iface
         self.setupUi(self)
+        self.dlg_region = regiondialog
         # self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
         # self.pushButtonAbout.clicked.connect(self.showAbout)
         self.pushButtonLoadRuianPlugin.clicked.connect(self.load_ruian_plugin)
         self.pushButtonLoadData.clicked.connect(self.load_data)
         self.pushButtonSourceOptions.clicked.connect(self.show_source_options_dialog)
+        self.pushButtonSettings.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/settings.png")))
+        self.pushButtonSettings.clicked.connect(self.show_settings)
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
@@ -372,3 +375,9 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.grids.append(shiftGrid)
                 except Exception:
                     continue
+
+    def show_settings(self):
+        self.dlg_region.setStart(False)
+        self.dlg_region.show()
+        # Run the dialog event loop
+        result = self.dlg_region.exec_()

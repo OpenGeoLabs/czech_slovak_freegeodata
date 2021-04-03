@@ -192,7 +192,7 @@ class GeoData:
         if self.first_start == True:
             self.first_start = False
             self.dlg_region = RegionDialog(self.iface)
-            self.dlg_main = GeoDataDialog(self.iface)
+            self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
 
         s = QgsSettings()
         region = s.value("geodata_cz_sk/region", "")
