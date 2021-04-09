@@ -26,6 +26,7 @@ import os
 import configparser
 import sys
 import webbrowser
+import re
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
@@ -120,12 +121,15 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 paths.append(name)
 
         paths.sort()
-        config = configparser.ConfigParser()
         group = ""
 
         index = 0
 
         for path in paths:
+            # config neads to be initializen in loop, otherwise it may
+            # retain values that are unititialized in current source,
+            # but were initiarized in some of the previous
+            config = configparser.ConfigParser()
             config.read(os.path.join(sources_dir, path, 'metadata.ini'))
             current_group = path.split("_")[0]
             if current_group != group:
@@ -137,24 +141,33 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
 
             url = ""
             proc_class = None
+            service_name = None
             if "WMS" in config['general']['type'] or "TMS" in config['general']['type']:
                 url = self.get_url(config)
+
+                if config['general']['type'].upper() == 'WMS' and config.has_option("wms", "service_name"):
+                    service_name = config["wms"]["service_name"]
 
             elif "WMTS" in config['general']['type']:
                 url = self.get_url(config)
 
+                if config.has_option("wmts", "service_name"):
+                    service_name = config["wmts"]["service_name"]
+
             elif "PROC" in config['general']['type']:
                 proc_class = self.get_proc_class(path)
-            
+
             self.data_sources.append(
                 {
                     "type": config['general']['type'],
                     "alias": config['ui']['alias'],
                     "url": url,
                     "checked": config['ui']['checked'],
-                    "proc_class": proc_class
+                    "proc_class": proc_class,
+                    "service_name": service_name
                 }
             )
+
             child = QTreeWidgetItem(parent)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
             child.setText(0, config['ui']['alias'])
@@ -234,13 +247,18 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         source = None
         if data_source['type'] == "TMS":
             url = data_source['url'][13:]
-            source = ["connections-xyz", data_source['alias'], "", "", "", url, "", "19", "0"]
+            source = ["connections-xyz", data_source['alias'], "", "", "", url, "", "19", "0", data_source["service_name"]]
         if data_source['type'] == "WMS":
             url = data_source['url'][4:].split("&")[0]
-            source = ["connections-wms", data_source['alias'], "", "", "", url, "", "19", "0"]
-        if source != None:
+            source = ["connections-wms", data_source['alias'], "", "", "", url, "", "19", "0", data_source["service_name"]]
+        if data_source['type'] == "WMTS":
+            url = re.match("^.*url=(.[^&]*)", data_source['url'])[1]
+            source = ["connections-wms", data_source['alias'], "", "", "", url, "", "19", "0", data_source["service_name"]]
+
+        print(self.sourcePresentInBrowser(source[0], url))
+        if source != None and not self.sourcePresentInBrowser(source[0], url):
             connectionType = source[0]
-            connectionName = source[1]
+            connectionName = source[1] if source[9] is None else source[9]
             QSettings().setValue("qgis/%s/%s/authcfg" % (connectionType, connectionName), source[2])
             QSettings().setValue("qgis/%s/%s/password" % (connectionType, connectionName), source[3])
             QSettings().setValue("qgis/%s/%s/referer" % (connectionType, connectionName), source[4])
@@ -250,6 +268,20 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
 
         iface.reloadConnections()
+
+    def sourcePresentInBrowser(self, connectionType, serviceUrl):
+        """ Determines presence of data source in Browser """
+
+        configKeys = QSettings().allKeys()
+        for key in configKeys:
+            keySplit = key.split("/")
+            if len(keySplit) >= 4 and keySplit[0] == "qgis" and keySplit[1] == connectionType and keySplit[3] == 'url':
+                confUrl = QgsSettings().value(key)
+                if confUrl == serviceUrl:
+                    return True
+
+        return False
+
 
     def add_proc_data_source_layer(self, data_source):
         if data_source['type'] == "PROC_VEC":
