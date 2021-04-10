@@ -26,6 +26,7 @@ import os
 import configparser
 import sys
 import webbrowser
+import unicodedata
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
@@ -44,6 +45,15 @@ from .data_sources.source import Source
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Geo_Data_dialog_base.ui'))
 
+def get_unicode_string(text: str):
+    line = unicodedata.normalize('NFKD', text)
+
+    output = ''
+    for c in line:
+        if not unicodedata.combining(c):
+            output += c
+    # print(output.lower())
+    return output.lower()
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, iface, parent=None):
@@ -61,6 +71,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
         self.load_sources_into_tree()
         self.selectedSource = -1
+        self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
 
     def get_url(self, config):
         if config['general']['type'].upper() == 'WMS':
@@ -148,6 +159,9 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             
             self.data_sources.append(
                 {
+                    "logo": os.path.join(sources_dir, path, config['ui']['icon']),
+                    "path": path,
+                    "group": config['ui']['group'],
                     "type": config['general']['type'],
                     "alias": config['ui']['alias'],
                     "url": url,
@@ -283,3 +297,45 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     #         webbrowser.get().open("http://opengeolabs.cz")
     #     except (webbrowser.Error):
     #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+
+
+    def load_filtered_sources_into_tree(self):
+        """
+        Loads filtered data into tree based on string given by filterBox.
+        """
+        self.keyword = self.filterBox.value()
+        self.treeWidgetSources.clear()
+
+        tree = self.treeWidgetSources
+        group = ""
+        index = 0
+
+        for data_source in self.data_sources:
+            
+                if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
+
+                    current_group = data_source['group'].split("_")[0].upper()
+                    if current_group != group:
+                        group = current_group
+                        parent = QTreeWidgetItem(tree)
+                        parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
+                        parent.setFlags(parent.flags()
+                                        | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+                        parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+                        
+
+                    print(data_source['alias'])
+                    child = QTreeWidgetItem(parent)
+                    child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                    child.setText(0, data_source['alias'])
+                    child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+
+                    child.setData(0, Qt.UserRole, index)
+                    if data_source['checked'] == "True":
+                        child.setCheckState(0, Qt.Checked)
+                    else:
+                        child.setCheckState(0, Qt.Unchecked)
+                    index += 1
+        tree.expandAll()
+        if self.keyword == "":
+            tree.collapseAll()
