@@ -126,19 +126,6 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <string notr="true"/>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>566</x>
-     <y>480</y>
-     <width>171</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-  </widget>
  </widget>
  <customwidgets>
   <customwidget>
