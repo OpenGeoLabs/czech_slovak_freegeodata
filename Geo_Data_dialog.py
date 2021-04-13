@@ -40,6 +40,10 @@ from qgis.PyQt.QtWidgets import *
 
 import importlib, inspect
 from .data_sources.source import Source
+from .crs_trans.CoordinateTransformation import CoordinateTransformation
+from .crs_trans.CoordinateTransformationList import CoordinateTransformationList
+from .crs_trans.ShiftGrid import ShiftGrid
+from .crs_trans.ShiftGridList import ShiftGridList
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -47,21 +51,29 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, parent=None):
+    def __init__(self, iface, regiondialog, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
         self.iface = iface
         self.setupUi(self)
+        self.dlg_region = regiondialog
         # self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
         # self.pushButtonAbout.clicked.connect(self.showAbout)
         self.pushButtonLoadRuianPlugin.clicked.connect(self.load_ruian_plugin)
         self.pushButtonLoadData.clicked.connect(self.load_data)
         self.pushButtonSourceOptions.clicked.connect(self.show_source_options_dialog)
+        self.pushButtonSettings.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/settings.png")))
+        self.pushButtonSettings.clicked.connect(self.show_settings)
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
         self.load_sources_into_tree()
         self.selectedSource = -1
+
+        self.grids = ShiftGridList()
+        self.load_shift_grids()
+        self.transformations = CoordinateTransformationList()
+        self.load_crs_transformations()
 
     def get_url(self, config):
         if config['general']['type'].upper() == 'WMS':
@@ -315,3 +327,110 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     #         webbrowser.get().open("http://opengeolabs.cz")
     #     except (webbrowser.Error):
     #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+
+    def load_crs_transformations(self):
+        """
+        Loads available transformatios defined in crs_trans.ini
+        """
+
+        projVersion = QgsProjUtils.projVersionMajor()
+
+        transConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "crs_trans.ini")
+        transConfig = configparser.ConfigParser()
+
+        try:
+            transConfig.read(transConfigFile)
+        except Exception:
+            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                                QApplication.translate("GeoData", "Unable to read coordinate transformations definition file.", None),
+                                                level=Qgis.Critical)
+            raise Exception("Unable to read coordinate transformations definition file.")
+
+        for transSection in transConfig:
+            if transSection != "DEFAULT":
+                transSectionContent = transConfig[transSection]
+
+                regions = transSectionContent.get("Regions", None)
+                if isinstance(regions, str) and regions is not None:
+                    regions = regions.split(" ")
+                crsFrom = transSectionContent.get("CrsFrom")
+                crsTo = transSectionContent.get("CrsTo")
+
+                # TransfOld is used only for Proj version 6 and only if present
+                if projVersion == 6 and "TransfOld" in [x[0] for x in transConfig.items(transSection)]:
+                    transformation = transSectionContent.get("TransfOld")
+                else:
+                    transformation = transSectionContent.get("Transf")
+
+                if projVersion == 6:
+                    grid = transSectionContent.get("GridOld", None)
+                else:
+                    grid = transSectionContent.get("Grid", None)
+
+                if grid is not None and len(self.grids.getGridsByKeys(grid)) != 1:
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping definition section {} because grid {} is unknown.".format(transSection, grid), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
+
+                # print("--------------------\nSection: {}\nRegion: {}\nCrsFrom: {}\nCrsTo: {}\nTransformation: {}\nShiftFile: {}".format(
+                #     transSection, regions, crsFrom, crsTo, transformation, gridFileUrl))
+
+                if regions is None or regions == "" or \
+                   crsFrom is None or crsFrom == "" or \
+                   crsTo is None or crsTo == "" or \
+                   transformation is None or transformation == "":
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping incomplete transformation definition section {}.".format(transSection), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
+
+                try:
+                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, self.grids, grid)
+                    self.transformations.append(transf)
+                except Exception:
+                    continue
+
+    def load_shift_grids(self):
+        """
+        Loads available shift grids defined in grids.ini
+        """
+
+        gridsConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "grids.ini")
+        gridsConfig = configparser.ConfigParser()
+
+        try:
+            gridsConfig.read(gridsConfigFile)
+        except Exception:
+            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                                QApplication.translate("GeoData", "Unable to read grids definition file.", None),
+                                                level=Qgis.Critical)
+            raise Exception("Unable to read grids definition file.")
+
+        for grid in gridsConfig:
+            if grid != "DEFAULT":
+                gridContent = gridsConfig[grid]
+
+                gridFileUrl = gridContent.get("GridFileUrl")
+                gridFileName = gridContent.get("GridFileName")
+
+                if gridFileUrl is None or gridFileName is None:
+                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
+                                                        QApplication.translate("GeoData", "Skipping grid definition of grid {}.".format(grid), None),
+                                                        level=Qgis.Warning,
+                                                        duration=5)
+                    continue
+
+                try:
+                    shiftGrid = ShiftGrid(grid, gridFileUrl, gridFileName)
+                    self.grids.append(shiftGrid)
+                except Exception:
+                    continue
+
+    def show_settings(self):
+        self.dlg_region.setStart(False)
+        self.dlg_region.show()
+        # Run the dialog event loop
+        result = self.dlg_region.exec_()
