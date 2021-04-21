@@ -38,3 +38,4 @@ The sources now include mapy.cz and hillshade from DEM 5G.
 * https://github.com/landam Martin Landa
 * https://github.com/jakubsimek97 Jakub Šimek
 * https://github.com/Bambooojooo Jan Kučera
+* Miki Michalko
