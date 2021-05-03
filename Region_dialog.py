@@ -70,7 +70,7 @@ class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.start = start
 
     def setRegion(self, region):
-        self.transformations.applyTransforations(region)
+        self.transformations.applyTransformations(region)
         QMessageBox.information(None, QApplication.translate("GeoData", "Info", None),
                                 QApplication.translate("GeoData", "You have to restart QGIS to apply all settings.", None))
         s = QgsSettings()

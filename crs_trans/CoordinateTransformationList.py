@@ -11,6 +11,9 @@ class CoordinateTransformationList(list):
     Represents list of Coordnate transformations and allows to preform some usefull queries.
     """
 
+    CONFIGURATION = "CONFIGURATION"
+    PROJECT = "PROJECT"
+
     def __str__(self):
         outStr = ""
         for transform in self:
@@ -42,14 +45,20 @@ class CoordinateTransformationList(list):
                 outTarnsforms.append(transform)
         return outTarnsforms
 
-    def applyTransforations(self, region=None):
+    def applyTransformations(self, region=None, destination=None):
         """
-        Adds all transformations conatined in this list to QGIS configuration file as defaults.
+        Adds all transformations conatined in this list to QGIS configuration file as defaults or to QGIS project.
         region - optional region filter. When specified only transformations of defined region will be applied.
+        destination - optional destination of transformation configuration { CONFIGURATION | PROJECT } - if not defined, configuration is assumed
         """
 
         if region is not None:
             assert isinstance(region, str)
+
+        if destination is None:
+            destination = CoordinateTransformationList.CONFIGURATION
+
+        assert isinstance(destination, str) and destination.upper() in (CoordinateTransformationList.CONFIGURATION, CoordinateTransformationList.PROJECT)
 
         if region is None:
             transformations = self
@@ -65,11 +74,19 @@ class CoordinateTransformationList(list):
 
         if len(transformations) > 0:
             for transform in transformations:
-                transform.addToConfig()
+                try:
+                    if destination == CoordinateTransformationList.CONFIGURATION:
+                        transform.addToConfig()
+                    else:
+                        transform.addToProject()
+                except Exception:
+                    pass
 
-            iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
-                                           QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
-                                           level=Qgis.Info)
+            # It is assumed that grids were already downloaded when plugin had been initialized, thus restart is not requested when transformations are added to project
+            if destination == CoordinateTransformationList.CONFIGURATION:
+                iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
+                                               QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
+                                               level=Qgis.Info)
         else:
             iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
                                            QApplication.translate("GeoData", "No transformation selected."),

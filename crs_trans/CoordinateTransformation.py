@@ -28,6 +28,7 @@ class CoordinateTransformation:
         self.crsTo = QgsCoordinateReferenceSystem(crsTo)
         self.grids = grids
         self.grid = grid
+        self.allowFallback = False
 
         if not self.crsFrom.isValid() or not self.crsTo.isValid():
             if not self.crsFrom.isValid():
@@ -76,11 +77,7 @@ class CoordinateTransformation:
         """
         return self.regions
 
-    def addToConfig(self):
-        """
-        Adds this transformation into QGIS configuration as default for specified pairs of coordinate systems.
-        """
-
+    def downloadGrid(self):
         if self.grid is not None:
             try:
                 shiftGrid = self.grids.getGridsByKeys(self.grid)
@@ -93,9 +90,16 @@ class CoordinateTransformation:
                 iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
                                                QApplication.translate("GeoData", "Unbale to download grid {} for transformation from {} to {}.".format(
                                                    self.grid, self.crsFrom.authid(), self.crsTo.authid()), None),
-                                               level=Qgis.Warning,
-                                               duration=5)
-                return
+                                               level=Qgis.Critical)
+                raise Exception("Grid not downloaded.")
+
+    def addToConfig(self):
+        """
+        Adds this transformation into QGIS configuration as default for specified pairs of coordinate systems.
+        """
+
+        if self.grid is not None:
+            self.downloadGrid()
 
         qgisConfig = QgsSettings()
         section = "Projections"
@@ -105,3 +109,21 @@ class CoordinateTransformation:
         transfProj = self.transformation
 
         qgisConfig.setValue("{}/{}//{}_coordinateOp".format(section, authFrom, authTo), transfProj)
+
+    def addToProject(self):
+        """
+        Adds this transformation into current QGIS project.
+        """
+
+        if self.grid is not None:
+            self.downloadGrid()
+
+        transformContext = QgsProject.instance().transformContext()
+        if transformContext.addCoordinateOperation(self.crsFrom, self.crsTo, self.transformation, self.allowFallback):
+            QgsProject.instance().setTransformContext(transformContext)
+        else:
+            iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
+                                           QApplication.translate("GeoData", "Unbale to save transformation from {} to {} to QGIS project.".format(
+                                               self.crsFrom.authid(), self.crsTo.authid()), None),
+                                           level=Qgis.Critical)
+            raise Exception("Transformation not saved to project.")
