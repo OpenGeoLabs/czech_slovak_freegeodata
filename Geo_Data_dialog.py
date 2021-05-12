@@ -51,13 +51,14 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Geo_Data_dialog_base.ui'))
 
 def get_unicode_string(text: str):
+    """Filter out diacritics from keyword."""
     line = unicodedata.normalize('NFKD', text)
 
     output = ''
     for c in line:
         if not unicodedata.combining(c):
             output += c
-    # print(output.lower())
+
     return output.lower()
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -365,9 +366,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                         parent.setFlags(parent.flags()
                                         | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
                         parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-                        
 
-                    print(data_source['alias'])
                     child = QTreeWidgetItem(parent)
                     child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                     child.setText(0, data_source['alias'])
