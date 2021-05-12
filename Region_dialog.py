@@ -77,7 +77,7 @@ class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
         s.setValue("geodata_cz_sk/region", region)
         if self.start:
             self.hide()
-            gdd = GeoDataDialog(self.iface)
+            gdd = GeoDataDialog(self.iface, self)
             gdd.show()
             gdd.exec_()
         else:
