@@ -96,6 +96,16 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      </property>
     </widget>
    </item>
+   <item row="7" column="1">
+    <widget class="QPushButton" name="pushButtonSettings">
+     <property name="toolTip">
+      <string>Settings</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <widget class="QgsFilterLineEdit" name="filterBox">
