@@ -154,7 +154,14 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             # retain values that are unititialized in current source,
             # but were initiarized in some of the previous
             config = configparser.ConfigParser()
-            config.read(os.path.join(sources_dir, path, 'metadata.ini'))
+            config_file = os.path.join(sources_dir, path, 'metadata.ini')
+            try:
+                config.read(config_file)
+            except UnicodeDecodeError as e:
+                iface.messageBar().pushMessage(
+                    "Error", "Unable load {}: {}".format(config_file, e), level=Qgis.Critical)
+                continue
+
             current_group = path.split("_")[0]
             if current_group != group:
                 group = current_group
@@ -166,20 +173,25 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             url = ""
             proc_class = None
             service_name = None
-            if "WMS" in config['general']['type'] or "TMS" in config['general']['type']:
-                url = self.get_url(config)
+            try:
+                if "WMS" in config['general']['type'] or "TMS" in config['general']['type']:
+                    url = self.get_url(config)
 
-                if config['general']['type'].upper() == 'WMS' and config.has_option("wms", "service_name"):
-                    service_name = config["wms"]["service_name"]
+                    if config['general']['type'].upper() == 'WMS' and config.has_option("wms", "service_name"):
+                        service_name = config["wms"]["service_name"]
 
-            elif "WMTS" in config['general']['type']:
-                url = self.get_url(config)
+                elif "WMTS" in config['general']['type']:
+                    url = self.get_url(config)
 
-                if config.has_option("wmts", "service_name"):
-                    service_name = config["wmts"]["service_name"]
+                    if config.has_option("wmts", "service_name"):
+                        service_name = config["wmts"]["service_name"]
 
-            elif "PROC" in config['general']['type']:
-                proc_class = self.get_proc_class(path)
+                elif "PROC" in config['general']['type']:
+                    proc_class = self.get_proc_class(path)
+            except KeyError as e:
+                iface.messageBar().pushMessage(
+                    "Error", "Invalid metadata {} (missing key {})".format(config_file, e), level=Qgis.Critical)
+                continue
 
             self.data_sources.append(
                 {
