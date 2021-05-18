@@ -100,6 +100,9 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="showSearchIcon">
+      <bool>true</bool>
+     </property>
      <property name="qgisRelation" stdset="0">
       <string notr="true"/>
      </property>
