@@ -367,10 +367,12 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         index = 0
 
         for data_source in self.data_sources:
-            
+                # print(data_source['group'])
                 if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
 
-                    current_group = data_source['group'].split("_")[0].upper()
+                    # current_group = data_source['group'].split("_")[0].upper()
+                    current_group = data_source['path'].split("_")[0]
+
                     if current_group != group:
                         group = current_group
                         parent = QTreeWidgetItem(tree)
@@ -393,7 +395,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         tree.expandAll()
         if self.keyword == "":
             tree.collapseAll()
-            
+
     def load_crs_transformations(self):
         """
         Loads available transformatios defined in crs_trans.ini
