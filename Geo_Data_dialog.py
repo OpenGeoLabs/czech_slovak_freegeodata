@@ -136,7 +136,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.treeWidgetSources.itemChanged.connect(self.handleChanged)
         self.treeWidgetSources.itemSelectionChanged.connect(self.handleSelected)
         tree = self.treeWidgetSources
-        tree.header().setResizeMode(0,QHeaderView.ResizeToContents)
+        tree.header().setSectionResizeMode(0,QHeaderView.ResizeToContents)
         paths = []
 
         sources_dir = os.path.join(self.current_dir, 'data_sources')
@@ -158,7 +158,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             config_file = os.path.join(sources_dir, path, 'metadata.ini')
             try:
                 config.read(config_file)
-            except UnicodeDecodeError as e:
+            except (UnicodeDecodeError, configparser.DuplicateOptionError) as e:
                 iface.messageBar().pushMessage(
                     "Error", "Unable load {}: {}".format(config_file, e), level=Qgis.Critical)
                 continue
