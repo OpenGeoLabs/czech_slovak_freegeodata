@@ -130,3 +130,5 @@ dmypy.json
 
 # vim files
 .*.sw*
+
+data/*.zip

@@ -65,6 +65,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, iface, regiondialog, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
+        self.current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
         self.iface = iface
         self.setupUi(self)
         self.dlg_region = regiondialog
@@ -134,11 +135,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.treeWidgetSources.itemChanged.connect(self.handleChanged)
         self.treeWidgetSources.itemSelectionChanged.connect(self.handleSelected)
-        tree    = self.treeWidgetSources
+        tree = self.treeWidgetSources
+        tree.header().setResizeMode(0,QHeaderView.ResizeToContents)
         paths = []
 
-        current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        sources_dir = os.path.join(current_dir, 'data_sources')
+        sources_dir = os.path.join(self.current_dir, 'data_sources')
 
         for name in os.listdir(sources_dir):
             if os.path.isdir(os.path.join(sources_dir, name)) and name[:2] != "__":
@@ -211,6 +212,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
             child.setText(0, config['ui']['alias'])
             child.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
+            if "PROC" in config['general']['type']:
+                child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
             parent.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
             child.setData(0, Qt.UserRole, index)
             if config['ui']['checked'] == "True":
@@ -382,7 +385,9 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                 child.setText(0, data_source['alias'])
                 child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-
+                if "PROC" in data_source['type']:
+                    child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
+                
                 child.setData(0, Qt.UserRole, index)
                 if data_source['checked'] == "True":
                     child.setCheckState(0, Qt.Checked)
