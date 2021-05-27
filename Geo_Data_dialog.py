@@ -370,34 +370,34 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         index = 0
 
         for data_source in self.data_sources:
-            
-                if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
+            if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
+                current_group = data_source['path'].split("_")[0]
 
-                    current_group = data_source['group'].split("_")[0].upper()
-                    if current_group != group:
-                        group = current_group
-                        parent = QTreeWidgetItem(tree)
-                        parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
-                        parent.setFlags(parent.flags()
-                                        | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-                        parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+                if current_group != group:
+                    group = current_group
+                    parent = QTreeWidgetItem(tree)
+                    parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
+                    parent.setFlags(parent.flags()
+                                    | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+                    parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
 
-                    child = QTreeWidgetItem(parent)
-                    child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                    child.setText(0, data_source['alias'])
-                    child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-                    if "PROC" in data_source['type']:
-                        child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
-                    child.setData(0, Qt.UserRole, index)
-                    if data_source['checked'] == "True":
-                        child.setCheckState(0, Qt.Checked)
-                    else:
-                        child.setCheckState(0, Qt.Unchecked)
-                    index += 1
+                child = QTreeWidgetItem(parent)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setText(0, data_source['alias'])
+                child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+                if "PROC" in data_source['type']:
+                    child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
+                
+                child.setData(0, Qt.UserRole, index)
+                if data_source['checked'] == "True":
+                    child.setCheckState(0, Qt.Checked)
+                else:
+                    child.setCheckState(0, Qt.Unchecked)
+                index += 1
         tree.expandAll()
         if self.keyword == "":
             tree.collapseAll()
-            
+
     def load_crs_transformations(self):
         """
         Loads available transformatios defined in crs_trans.ini
