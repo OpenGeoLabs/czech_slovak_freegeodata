@@ -427,7 +427,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 crsTo = transSectionContent.get("CrsTo")
 
                 # TransfOld is used only for Proj version 6 and only if present
-                if projVersion == 6 and "TransfOld" in [x[0] for x in transConfig.items(transSection)]:
+                if projVersion == 6 and "transfold" in [x[0] for x in transConfig.items(transSection)]:
                     transformation = transSectionContent.get("TransfOld")
                 else:
                     transformation = transSectionContent.get("Transf")

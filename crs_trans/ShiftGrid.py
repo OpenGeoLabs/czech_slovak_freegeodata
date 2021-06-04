@@ -41,6 +41,8 @@ class ShiftGrid:
         if self.present:
             return True
         else:
+            if os.path.isfile(self.fullGridPath):
+                self.present = True
             return os.path.isfile(self.fullGridPath)
 
     def downloadFailed(self):
