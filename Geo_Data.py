@@ -71,6 +71,9 @@ class GeoData:
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
 
+        self.toolbar = self.iface.addToolBar(u'GeoDataCZSK')
+        self.toolbar.setObjectName(u'GeoDataCZSK')
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -150,7 +153,8 @@ class GeoData:
 
         if add_to_toolbar:
             # Adds plugin icon to Plugins toolbar
-            self.iface.addToolBarIcon(action)
+#             self.iface.addToolBarIcon(action)
+            self.toolbar.addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -171,6 +175,15 @@ class GeoData:
             text=self.tr(u'Browse data sources'),
             callback=self.run,
             parent=self.iface.mainWindow())
+
+        icon_path = os.path.join(
+                    os.path.dirname(__file__), 'icons/settings.png')
+        self.add_action(
+                    icon_path,
+                    text=self.tr(u'Set region'),
+                    callback=self.showSettings,
+                    parent=self.iface.mainWindow())
+
         # will be set False in run()
         self.first_start = True
 
@@ -181,8 +194,16 @@ class GeoData:
             self.iface.removePluginMenu(
                 self.tr(u'&GeoData'),
                 action)
-            self.iface.removeToolBarIcon(action)
+#             self.iface.removeToolBarIcon(action)
+        del self.toolbar
 
+    def showSettings(self):
+        if self.first_start == True:
+            self.first_start = False
+            self.dlg_region = RegionDialog(self.iface)
+            self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
+        if self.dlg_region is not None:
+            self.dlg_region.show()
 
     def run(self):
         """Run method that performs all the real work"""
