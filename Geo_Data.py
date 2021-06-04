@@ -26,7 +26,9 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu, QMessageBox, QDialog
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu, QMessageBox, QDialog
 
-from qgis.core import QgsSettings
+from qgis.core import *
+from qgis.gui import *
+from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -35,6 +37,7 @@ from .Geo_Data_dialog import GeoDataDialog
 from .Region_dialog import RegionDialog
 import os.path
 
+from .crs_trans.RegionHandler import RegionHandler
 
 class GeoData:
     """QGIS Plugin Implementation."""
@@ -73,6 +76,8 @@ class GeoData:
 
         self.toolbar = self.iface.addToolBar(u'GeoDataCZSK')
         self.toolbar.setObjectName(u'GeoDataCZSK')
+
+        self.region_handler = RegionHandler(iface)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -167,7 +172,7 @@ class GeoData:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        
+
         icon_path = os.path.join(
             os.path.dirname(__file__), 'icon.png')
         self.add_action(
@@ -184,6 +189,14 @@ class GeoData:
                     callback=self.showSettings,
                     parent=self.iface.mainWindow())
 
+        icon_path = os.path.join(
+                            os.path.dirname(__file__), 'icons/save_to_project.png')
+        self.add_action(
+                    icon_path,
+                    text=self.tr(u'Save settings to project'),
+                    callback=self.saveRegionSettingsToProject,
+                    parent=self.iface.mainWindow())
+
         # will be set False in run()
         self.first_start = True
 
@@ -197,11 +210,29 @@ class GeoData:
 #             self.iface.removeToolBarIcon(action)
         del self.toolbar
 
+    def saveRegionSettingsToProject(self):
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == "":
+            QMessageBox.information(None, self.tr("Error"),
+                                            self.tr("You have to set region first in the settings."))
+        else:
+            try:
+                self.region_handler.applyTransformations(region, "PROJECT")
+                self.iface.messageBar().pushMessage(self.tr("Info"),
+                                                               self.tr("Settings sucessfully saved into the project."),
+                                                               level=Qgis.Info)
+            except Exception as e:
+                print(e)
+                QMessageBox.information(None, self.tr("Error"),
+                                                            self.tr("Can not save settings into the project."))
+
     def showSettings(self):
         if self.first_start == True:
             self.first_start = False
             self.dlg_region = RegionDialog(self.iface)
             self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
+
         if self.dlg_region is not None:
             self.dlg_region.show()
 
