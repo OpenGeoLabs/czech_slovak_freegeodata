@@ -50,21 +50,33 @@ from .crs_trans.ShiftGridList import ShiftGridList
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Geo_Data_dialog_base.ui'))
 
-def get_unicode_string(text: str):
+# Return lowered unicoded string 
+def get_unicode_string(word: str):
     """Filter out diacritics from keyword."""
-    line = unicodedata.normalize('NFKD', text)
-
     output = ''
+    line = unicodedata.normalize('NFKD', word)
+
     for c in line:
         if not unicodedata.combining(c):
             output += c
 
     return output.lower()
 
+# Merge strings from list into one unicoded string
+def get_unicoded_list(words: list):
+    output = ''
+    for word in words:
+        unicodedWord = get_unicode_string(word)
+        output += unicodedWord
+
+    return output.lower()
+
+
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, iface, regiondialog, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
+        self.current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
         self.iface = iface
         self.setupUi(self)
         self.dlg_region = regiondialog
@@ -81,6 +93,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.load_sources_into_tree()
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
+        self.checkBoxOnlyRegionSources.stateChanged.connect(self.load_filtered_sources_into_tree)
 
         self.grids = ShiftGridList()
         self.load_shift_grids()
@@ -134,11 +147,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.treeWidgetSources.itemChanged.connect(self.handleChanged)
         self.treeWidgetSources.itemSelectionChanged.connect(self.handleSelected)
-        tree    = self.treeWidgetSources
+        tree = self.treeWidgetSources
+        tree.header().setSectionResizeMode(0,QHeaderView.ResizeToContents)
         paths = []
 
-        current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        sources_dir = os.path.join(current_dir, 'data_sources')
+        sources_dir = os.path.join(self.current_dir, 'data_sources')
 
         for name in os.listdir(sources_dir):
             if os.path.isdir(os.path.join(sources_dir, name)) and name[:2] != "__":
@@ -156,19 +169,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             config = configparser.ConfigParser()
             config_file = os.path.join(sources_dir, path, 'metadata.ini')
             try:
-                config.read(config_file)
-            except UnicodeDecodeError as e:
+                config.read(config_file, 'UTF-8')
+            except (UnicodeDecodeError, configparser.DuplicateOptionError) as e:
                 iface.messageBar().pushMessage(
                     "Error", "Unable load {}: {}".format(config_file, e), level=Qgis.Critical)
                 continue
-
-            current_group = path.split("_")[0]
-            if current_group != group:
-                group = current_group
-                parent = QTreeWidgetItem(tree)
-                parent.setText(0, current_group) # TODO read from metadata.ini (maybe)
-                parent.setFlags(parent.flags()
-                  | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
 
             url = ""
             proc_class = None
@@ -193,6 +198,14 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "Error", "Invalid metadata {} (missing key {})".format(config_file, e), level=Qgis.Critical)
                 continue
 
+            # if not config['ui']['keywords']:
+            #     key_word = []
+            # else:
+            try:
+                key_word = config['ui']['keywords'].split(',')
+            except KeyError:
+                key_word = []
+
             self.data_sources.append(
                 {
                     "logo": os.path.join(sources_dir, path, config['ui']['icon']),
@@ -203,26 +216,78 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "url": url,
                     "checked": config['ui']['checked'],
                     "proc_class": proc_class,
-                    "service_name": service_name
+                    "service_name": service_name,
+                    "keywords": key_word
                 }
             )
 
-            child = QTreeWidgetItem(parent)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setText(0, config['ui']['alias'])
-            child.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
-            parent.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
-            child.setData(0, Qt.UserRole, index)
-            if config['ui']['checked'] == "True":
-                child.setCheckState(0, Qt.Checked)
-            else:
-                child.setCheckState(0, Qt.Unchecked)
+            self.load_filtered_sources_into_tree()
+
+    def is_in_region(self, data_source_keywords):
+        if not self.checkBoxOnlyRegionSources.isChecked():
+            return True
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == '':
+            return True
+        else:
+#             print(data_source_keywords)
+            if region == 'CZE' and 'cz' in data_source_keywords:
+                return True
+            if region == 'SVK' and 'sk' in data_source_keywords:
+                return True
+        return False
+
+    def load_filtered_sources_into_tree(self):
+        """
+        Loads filtered data into tree based on string given by filterBox.
+        """
+        self.keyword = self.filterBox.value()
+        self.treeWidgetSources.clear()
+
+        keywordString = get_unicode_string(self.keyword)
+        tree = self.treeWidgetSources
+        group = ""
+        index = 0
+
+        for data_source in self.data_sources:
+#             print(self.is_in_region(get_unicoded_list(data_source['keywords'])))
+            if ((keywordString == '' and self.is_in_region(get_unicoded_list(data_source['keywords'])))
+                or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicode_string(data_source['alias']))
+               or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicode_string(data_source['group']))
+               or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicoded_list(data_source['keywords']))):
+                current_group = data_source['path'].split("_")[0]
+
+                if current_group != group:
+                    group = current_group
+                    parent = QTreeWidgetItem(tree)
+                    parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
+                    parent.setFlags(parent.flags()
+                                    | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+                    parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+
+                child = QTreeWidgetItem(parent)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setText(0, data_source['alias'])
+                child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+                if "PROC" in data_source['type']:
+                    child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
+
+                child.setData(0, Qt.UserRole, index)
+                if data_source['checked'] == "True":
+                    child.setCheckState(0, Qt.Checked)
+                else:
+                    child.setCheckState(0, Qt.Unchecked)
             index += 1
+        tree.expandAll()
+        if self.keyword == "":
+            tree.collapseAll()
+
 
     def handleSelected(self):
         self.selectedSource = -1
         self.pushButtonSourceOptions.setEnabled(False)
-        print(self.treeWidgetSources.selectedItems())
+#         print(self.treeWidgetSources.selectedItems())
         for item in self.treeWidgetSources.selectedItems():
             if item.data(0, Qt.UserRole) is not None:
                 id = int(item.data(0, Qt.UserRole))
@@ -258,11 +323,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         # print("Add Layer " + (self.wms_sources[index]))
         # rlayer = QgsRasterLayer(self.wms_sources[index], 'MA-ALUS', 'wms')
         layer = QgsRasterLayer(data_source['url'], data_source['alias'], layer_type)
-        print(data_source, layer_type)
+#         print(data_source, layer_type)
         if layer.isValid():
             QgsProject.instance().addMapLayer(layer)
         else:
-            print(data_source['url'])
+#             print(data_source['url'])
             iface.messageBar().pushMessage("Error", "The layer was not valid and could not be loaded.", level=Qgis.Critical)
 
     def get_proc_class(self, path):
@@ -294,7 +359,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             url = re.match("^.*url=(.[^&]*)", data_source['url'])[1]
             source = ["connections-wms", data_source['alias'], "", "", "", url, "", "19", "0", data_source["service_name"]]
 
-        print(self.sourcePresentInBrowser(source[0], url))
+#         print(self.sourcePresentInBrowser(source[0], url))
         if source != None and not self.sourcePresentInBrowser(source[0], url):
             connectionType = source[0]
             connectionName = source[1] if source[9] is None else source[9]
@@ -355,45 +420,6 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     #     except (webbrowser.Error):
     #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
 
-    def load_filtered_sources_into_tree(self):
-        """
-        Loads filtered data into tree based on string given by filterBox.
-        """
-        self.keyword = self.filterBox.value()
-        self.treeWidgetSources.clear()
-
-        tree = self.treeWidgetSources
-        group = ""
-        index = 0
-
-        for data_source in self.data_sources:
-            
-                if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
-
-                    current_group = data_source['group'].split("_")[0].upper()
-                    if current_group != group:
-                        group = current_group
-                        parent = QTreeWidgetItem(tree)
-                        parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
-                        parent.setFlags(parent.flags()
-                                        | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-                        parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-
-                    child = QTreeWidgetItem(parent)
-                    child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                    child.setText(0, data_source['alias'])
-                    child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-
-                    child.setData(0, Qt.UserRole, index)
-                    if data_source['checked'] == "True":
-                        child.setCheckState(0, Qt.Checked)
-                    else:
-                        child.setCheckState(0, Qt.Unchecked)
-                    index += 1
-        tree.expandAll()
-        if self.keyword == "":
-            tree.collapseAll()
-            
     def load_crs_transformations(self):
         """
         Loads available transformatios defined in crs_trans.ini
@@ -423,7 +449,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 crsTo = transSectionContent.get("CrsTo")
 
                 # TransfOld is used only for Proj version 6 and only if present
-                if projVersion == 6 and "TransfOld" in [x[0] for x in transConfig.items(transSection)]:
+                if projVersion == 6 and "transfold" in [x[0] for x in transConfig.items(transSection)]:
                     transformation = transSectionContent.get("TransfOld")
                 else:
                     transformation = transSectionContent.get("Transf")

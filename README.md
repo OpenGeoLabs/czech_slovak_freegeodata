@@ -15,9 +15,6 @@ Dialog allows to select from sources and load them into the map.
 
 ![dialog](doc/dialog.png)
 
-### Known issues
-* The sources should have some information about type of the source shown in the dialog. 
-
 ### News
 The sources now include mapy.cz and hillshade from DEM 5G. 
 ![mapy.cz and hillshade for DMR 5G](doc/mapycz_dem5g.png)

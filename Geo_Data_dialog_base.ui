@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>725</width>
+    <width>934</width>
     <height>632</height>
    </rect>
   </property>
@@ -70,7 +70,7 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
       </size>
      </property>
      <property name="columnCount">
-      <number>1</number>
+      <number>2</number>
      </property>
      <attribute name="headerVisible">
       <bool>false</bool>
@@ -78,6 +78,11 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      <column>
       <property name="text">
        <string notr="true">1</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string notr="true">2</string>
       </property>
      </column>
     </widget>
@@ -100,6 +105,9 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="showSearchIcon">
+      <bool>true</bool>
+     </property>
      <property name="qgisRelation" stdset="0">
       <string notr="true"/>
      </property>
@@ -116,6 +124,16 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <widget class="QPushButton" name="pushButtonLoadRuianPlugin">
      <property name="text">
       <string>Import data from RUIAN</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="checkBoxOnlyRegionSources">
+     <property name="text">
+      <string>Show only sources for selected region</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
