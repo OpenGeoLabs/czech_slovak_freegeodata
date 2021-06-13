@@ -50,16 +50,27 @@ from .crs_trans.ShiftGridList import ShiftGridList
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Geo_Data_dialog_base.ui'))
 
-def get_unicode_string(text: str):
+# Return lowered unicoded string 
+def get_unicode_string(word: str):
     """Filter out diacritics from keyword."""
-    line = unicodedata.normalize('NFKD', text)
-
     output = ''
+    line = unicodedata.normalize('NFKD', word)
+
     for c in line:
         if not unicodedata.combining(c):
             output += c
 
     return output.lower()
+
+# Merge strings from list into one unicoded string
+def get_unicoded_list(words: list):
+    output = ''
+    for word in words:
+        unicodedWord = get_unicode_string(word)
+        output += unicodedWord
+
+    return output.lower()
+
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, iface, regiondialog, parent=None):
@@ -194,6 +205,14 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "Error", "Invalid metadata {} (missing key {})".format(config_file, e), level=Qgis.Critical)
                 continue
 
+            # if not config['ui']['keywords']:
+            #     key_word = []
+            # else:
+            try:
+                key_word = config['ui']['keywords'].split(',')
+            except KeyError:
+                key_word = []
+
             self.data_sources.append(
                 {
                     "logo": os.path.join(sources_dir, path, config['ui']['icon']),
@@ -204,9 +223,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "url": url,
                     "checked": config['ui']['checked'],
                     "proc_class": proc_class,
-                    "service_name": service_name
+                    "service_name": service_name,
+                    "keywords": key_word
                 }
             )
+            
 
             child = QTreeWidgetItem(parent)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
@@ -365,12 +386,15 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.keyword = self.filterBox.value()
         self.treeWidgetSources.clear()
 
+        keywordString = get_unicode_string(self.keyword)
         tree = self.treeWidgetSources
         group = ""
         index = 0
 
         for data_source in self.data_sources:
-            if get_unicode_string(self.keyword) in get_unicode_string(data_source['alias']):
+            if (keywordString in get_unicode_string(data_source['alias']) or 
+               keywordString in get_unicode_string(data_source['group']) or 
+               keywordString in get_unicoded_list(data_source['keywords'])):
                 current_group = data_source['path'].split("_")[0]
 
                 if current_group != group:
