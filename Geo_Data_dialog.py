@@ -231,7 +231,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         if region == '':
             return True
         else:
-            print(data_source_keywords)
+#             print(data_source_keywords)
             if region == 'CZE' and 'cz' in data_source_keywords:
                 return True
             if region == 'SVK' and 'sk' in data_source_keywords:
@@ -323,11 +323,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         # print("Add Layer " + (self.wms_sources[index]))
         # rlayer = QgsRasterLayer(self.wms_sources[index], 'MA-ALUS', 'wms')
         layer = QgsRasterLayer(data_source['url'], data_source['alias'], layer_type)
-        print(data_source, layer_type)
+#         print(data_source, layer_type)
         if layer.isValid():
             QgsProject.instance().addMapLayer(layer)
         else:
-            print(data_source['url'])
+#             print(data_source['url'])
             iface.messageBar().pushMessage("Error", "The layer was not valid and could not be loaded.", level=Qgis.Critical)
 
     def get_proc_class(self, path):
@@ -359,7 +359,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             url = re.match("^.*url=(.[^&]*)", data_source['url'])[1]
             source = ["connections-wms", data_source['alias'], "", "", "", url, "", "19", "0", data_source["service_name"]]
 
-        print(self.sourcePresentInBrowser(source[0], url))
+#         print(self.sourcePresentInBrowser(source[0], url))
         if source != None and not self.sourcePresentInBrowser(source[0], url):
             connectionType = source[0]
             connectionName = source[1] if source[9] is None else source[9]
