@@ -246,7 +246,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     def handleSelected(self):
         self.selectedSource = -1
         self.pushButtonSourceOptions.setEnabled(False)
-        print(self.treeWidgetSources.selectedItems())
+#         print(self.treeWidgetSources.selectedItems())
         for item in self.treeWidgetSources.selectedItems():
             if item.data(0, Qt.UserRole) is not None:
                 id = int(item.data(0, Qt.UserRole))
@@ -417,7 +417,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     child.setCheckState(0, Qt.Checked)
                 else:
                     child.setCheckState(0, Qt.Unchecked)
-                index += 1
+            index += 1
         tree.expandAll()
         if self.keyword == "":
             tree.collapseAll()
