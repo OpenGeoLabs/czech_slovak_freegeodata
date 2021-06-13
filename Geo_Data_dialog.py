@@ -168,7 +168,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             config = configparser.ConfigParser()
             config_file = os.path.join(sources_dir, path, 'metadata.ini')
             try:
-                config.read(config_file)
+                config.read(config_file, 'UTF-8')
             except (UnicodeDecodeError, configparser.DuplicateOptionError) as e:
                 iface.messageBar().pushMessage(
                     "Error", "Unable load {}: {}".format(config_file, e), level=Qgis.Critical)
