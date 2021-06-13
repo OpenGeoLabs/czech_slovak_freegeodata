@@ -174,14 +174,6 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "Error", "Unable load {}: {}".format(config_file, e), level=Qgis.Critical)
                 continue
 
-            current_group = path.split("_")[0]
-            if current_group != group:
-                group = current_group
-                parent = QTreeWidgetItem(tree)
-                parent.setText(0, current_group) # TODO read from metadata.ini (maybe)
-                parent.setFlags(parent.flags()
-                  | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-
             url = ""
             proc_class = None
             service_name = None
@@ -227,21 +219,52 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                     "keywords": key_word
                 }
             )
-            
 
-            child = QTreeWidgetItem(parent)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setText(0, config['ui']['alias'])
-            child.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
-            if "PROC" in config['general']['type']:
-                child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
-            parent.setIcon(0, QIcon(os.path.join(sources_dir, path, config['ui']['icon'])))
-            child.setData(0, Qt.UserRole, index)
-            if config['ui']['checked'] == "True":
-                child.setCheckState(0, Qt.Checked)
-            else:
-                child.setCheckState(0, Qt.Unchecked)
+            self.load_filtered_sources_into_tree()
+
+    def load_filtered_sources_into_tree(self):
+        """
+        Loads filtered data into tree based on string given by filterBox.
+        """
+        self.keyword = self.filterBox.value()
+        self.treeWidgetSources.clear()
+
+        keywordString = get_unicode_string(self.keyword)
+        tree = self.treeWidgetSources
+        group = ""
+        index = 0
+
+        for data_source in self.data_sources:
+            if (keywordString == '' or keywordString in get_unicode_string(data_source['alias']) or
+               keywordString in get_unicode_string(data_source['group']) or
+               keywordString in get_unicoded_list(data_source['keywords'])):
+                current_group = data_source['path'].split("_")[0]
+
+                if current_group != group:
+                    group = current_group
+                    parent = QTreeWidgetItem(tree)
+                    parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
+                    parent.setFlags(parent.flags()
+                                    | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+                    parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+
+                child = QTreeWidgetItem(parent)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setText(0, data_source['alias'])
+                child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
+                if "PROC" in data_source['type']:
+                    child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
+
+                child.setData(0, Qt.UserRole, index)
+                if data_source['checked'] == "True":
+                    child.setCheckState(0, Qt.Checked)
+                else:
+                    child.setCheckState(0, Qt.Unchecked)
             index += 1
+        tree.expandAll()
+        if self.keyword == "":
+            tree.collapseAll()
+
 
     def handleSelected(self):
         self.selectedSource = -1
@@ -378,49 +401,6 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
     #         webbrowser.get().open("http://opengeolabs.cz")
     #     except (webbrowser.Error):
     #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
-
-    def load_filtered_sources_into_tree(self):
-        """
-        Loads filtered data into tree based on string given by filterBox.
-        """
-        self.keyword = self.filterBox.value()
-        self.treeWidgetSources.clear()
-
-        keywordString = get_unicode_string(self.keyword)
-        tree = self.treeWidgetSources
-        group = ""
-        index = 0
-
-        for data_source in self.data_sources:
-            if (keywordString in get_unicode_string(data_source['alias']) or 
-               keywordString in get_unicode_string(data_source['group']) or 
-               keywordString in get_unicoded_list(data_source['keywords'])):
-                current_group = data_source['path'].split("_")[0]
-
-                if current_group != group:
-                    group = current_group
-                    parent = QTreeWidgetItem(tree)
-                    parent.setText(0, current_group)  # TODO read from metadata.ini (maybe)
-                    parent.setFlags(parent.flags()
-                                    | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-                    parent.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-
-                child = QTreeWidgetItem(parent)
-                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                child.setText(0, data_source['alias'])
-                child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
-                if "PROC" in data_source['type']:
-                    child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
-                
-                child.setData(0, Qt.UserRole, index)
-                if data_source['checked'] == "True":
-                    child.setCheckState(0, Qt.Checked)
-                else:
-                    child.setCheckState(0, Qt.Unchecked)
-            index += 1
-        tree.expandAll()
-        if self.keyword == "":
-            tree.collapseAll()
 
     def load_crs_transformations(self):
         """
