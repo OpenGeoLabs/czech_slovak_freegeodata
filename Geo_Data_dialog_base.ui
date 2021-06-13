@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>725</width>
+    <width>934</width>
     <height>632</height>
    </rect>
   </property>
@@ -124,6 +124,16 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <widget class="QPushButton" name="pushButtonLoadRuianPlugin">
      <property name="text">
       <string>Import data from RUIAN</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="checkBoxOnlyRegionSources">
+     <property name="text">
+      <string>Show only sources for selected region</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

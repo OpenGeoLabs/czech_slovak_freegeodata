@@ -93,6 +93,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.load_sources_into_tree()
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
+        self.checkBoxOnlyRegionSources.stateChanged.connect(self.load_filtered_sources_into_tree)
 
         self.grids = ShiftGridList()
         self.load_shift_grids()
@@ -222,6 +223,21 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
 
             self.load_filtered_sources_into_tree()
 
+    def is_in_region(self, data_source_keywords):
+        if not self.checkBoxOnlyRegionSources.isChecked():
+            return True
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == '':
+            return True
+        else:
+            print(data_source_keywords)
+            if region == 'CZE' and 'cz' in data_source_keywords:
+                return True
+            if region == 'SVK' and 'sk' in data_source_keywords:
+                return True
+        return False
+
     def load_filtered_sources_into_tree(self):
         """
         Loads filtered data into tree based on string given by filterBox.
@@ -235,9 +251,11 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         index = 0
 
         for data_source in self.data_sources:
-            if (keywordString == '' or keywordString in get_unicode_string(data_source['alias']) or
-               keywordString in get_unicode_string(data_source['group']) or
-               keywordString in get_unicoded_list(data_source['keywords'])):
+#             print(self.is_in_region(get_unicoded_list(data_source['keywords'])))
+            if ((keywordString == '' and self.is_in_region(get_unicoded_list(data_source['keywords'])))
+                or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicode_string(data_source['alias']))
+               or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicode_string(data_source['group']))
+               or (self.is_in_region(get_unicoded_list(data_source['keywords'])) and keywordString in get_unicoded_list(data_source['keywords']))):
                 current_group = data_source['path'].split("_")[0]
 
                 if current_group != group:
