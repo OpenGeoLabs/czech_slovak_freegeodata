@@ -24,7 +24,7 @@
         <translation type="obsolete">Nemohu najít prohlížeč k zobrazení stránky o aplikaci</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog.py" line="356"/>
+        <location filename="../Geo_Data_dialog.py" line="420"/>
         <source>This functionality requires RUIAN plugin</source>
         <translation>Pro tuto funkci potřebujete RUIAN plugin</translation>
     </message>
@@ -113,7 +113,12 @@ Plugin umožňuje spustit dialogové okno pluginu RUIAN pro import data z RUIAN.
     <message>
         <location filename="../Geo_Data_dialog_base.ui" line="93"/>
         <source>Settings</source>
-        <translation type="unfinished">Nastavení</translation>
+        <translation>Nastavení</translation>
+    </message>
+    <message>
+        <location filename="../Geo_Data_dialog_base.ui" line="133"/>
+        <source>Show only sources for selected region</source>
+        <translation>Zobrazit pouze zdroje v regionu</translation>
     </message>
 </context>
 <context>

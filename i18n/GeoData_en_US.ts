@@ -24,7 +24,7 @@
         <translation type="obsolete">Can not find web browser to open page about</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog.py" line="356"/>
+        <location filename="../Geo_Data_dialog.py" line="420"/>
         <source>This functionality requires RUIAN plugin</source>
         <translation>This functionality requires RUIAN plugin</translation>
     </message>
@@ -113,7 +113,12 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <message>
         <location filename="../Geo_Data_dialog_base.ui" line="93"/>
         <source>Settings</source>
-        <translation type="unfinished">Settings</translation>
+        <translation>Settings</translation>
+    </message>
+    <message>
+        <location filename="../Geo_Data_dialog_base.ui" line="133"/>
+        <source>Show only sources for selected region</source>
+        <translation>Show only sources for selected region</translation>
     </message>
 </context>
 <context>
