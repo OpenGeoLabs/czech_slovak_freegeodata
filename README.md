@@ -6,8 +6,9 @@ The focused area is Czech Republic and Slovakia.
 It is better to have EPSG:5514 as a default CRS set in the QGIS.
 
 ### Run it
-The dialog is available via button in Plugins toolbar.
-
+The dialog is available via first button in GeoData CZ/SK toolbar.
+Second button in the toolbar shows dialog for set the region.
+Third button allows to save region settings into the current project.
 ![toolbar](doc/plugins_toolbar.png)
 
 ### Dialog
