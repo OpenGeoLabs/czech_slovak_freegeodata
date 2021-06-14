@@ -158,9 +158,6 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 paths.append(name)
 
         paths.sort()
-        group = ""
-
-        index = 0
 
         for path in paths:
             # config neads to be initializen in loop, otherwise it may
@@ -168,6 +165,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             # but were initiarized in some of the previous
             config = configparser.ConfigParser()
             config_file = os.path.join(sources_dir, path, 'metadata.ini')
+
             try:
                 config.read(config_file, 'UTF-8')
             except (UnicodeDecodeError, configparser.DuplicateOptionError) as e:
@@ -193,14 +191,12 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
 
                 elif "PROC" in config['general']['type']:
                     proc_class = self.get_proc_class(path)
+
             except KeyError as e:
                 iface.messageBar().pushMessage(
                     "Error", "Invalid metadata {} (missing key {})".format(config_file, e), level=Qgis.Critical)
                 continue
 
-            # if not config['ui']['keywords']:
-            #     key_word = []
-            # else:
             try:
                 key_word = config['ui']['keywords'].split(',')
             except KeyError:
