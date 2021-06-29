@@ -46,7 +46,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, parent=None, start=True):
+    def __init__(self, iface, region_handler, parent=None, start=True):
         """Constructor."""
         super(RegionDialog, self).__init__(parent)
         self.iface = iface
@@ -57,7 +57,7 @@ class RegionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButtonSVK.clicked.connect(self.setRegionSVK)
         self.pushButtonCZE.clicked.connect(self.setRegionCZE)
 
-        self.region_handler = RegionHandler(iface)
+        self.region_handler = region_handler
 
     def setStart(self, start):
         self.start = start

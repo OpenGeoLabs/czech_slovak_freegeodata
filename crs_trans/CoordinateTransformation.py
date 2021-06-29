@@ -30,8 +30,11 @@ class CoordinateTransformation:
         self.grid = grid
         self.allowFallback = False
 
-        if not self.crsFrom.isValid() or not self.crsTo.isValid():
-            if not self.crsFrom.isValid():
+        crsFromValid = self.crsFrom.isValid()
+        crsToValid = self.crsTo.isValid()
+
+        if not crsFromValid or not crsToValid:
+            if not crsFromValid:
                 invalidCrsDefinition = crsFrom
             else:
                 invalidCrsDefinition = crsTo
@@ -48,7 +51,9 @@ class CoordinateTransformation:
             self.fullTransformation = None
         else:
             matchingTransformation = None
-            for qdt in QgsDatumTransform.operations(self.crsFrom, self.crsTo):
+            possibleTransformations = QgsDatumTransform.operations(self.crsFrom, self.crsTo)
+
+            for qdt in possibleTransformations:
                 if qdt.name == transformation:
                     matchingTransformation = qdt
                     break

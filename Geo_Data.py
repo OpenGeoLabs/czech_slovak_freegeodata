@@ -230,7 +230,7 @@ class GeoData:
     def showSettings(self):
         if self.first_start == True:
             self.first_start = False
-            self.dlg_region = RegionDialog(self.iface)
+            self.dlg_region = RegionDialog(self.iface, self.region_handler)
             self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
 
         if self.dlg_region is not None:
@@ -243,7 +243,7 @@ class GeoData:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-            self.dlg_region = RegionDialog(self.iface)
+            self.dlg_region = RegionDialog(self.iface, self.region_handler)
             self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
 
         s = QgsSettings()
