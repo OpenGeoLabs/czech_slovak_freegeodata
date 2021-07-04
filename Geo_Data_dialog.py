@@ -73,20 +73,18 @@ def get_unicoded_list(words: list):
 
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, regiondialog, parent=None):
+    def __init__(self, iface, regionhandler, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
         self.current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
         self.iface = iface
         self.setupUi(self)
-        self.dlg_region = regiondialog
+        self.region_handler = regionhandler
         # self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
         # self.pushButtonAbout.clicked.connect(self.showAbout)
         self.pushButtonLoadRuianPlugin.clicked.connect(self.load_ruian_plugin)
         self.pushButtonLoadData.clicked.connect(self.load_data)
         self.pushButtonSourceOptions.clicked.connect(self.show_source_options_dialog)
-        self.pushButtonSettings.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/settings.png")))
-        self.pushButtonSettings.clicked.connect(self.show_settings)
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
@@ -94,6 +92,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
         self.checkBoxOnlyRegionSources.stateChanged.connect(self.load_filtered_sources_into_tree)
+        self.comboBoxRegion.currentIndexChanged.connect(self.set_region)
+        self.load_region()
 
     def get_url(self, config):
         if config['general']['type'].upper() == 'WMS':
@@ -405,14 +405,25 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         if not ruian_found:
             self.labelRuianError.setText(QApplication.translate("GeoData","This functionality requires RUIAN plugin", None))
 
-    # def showAbout(self):
-    #     try:
-    #         webbrowser.get().open("http://opengeolabs.cz")
-    #     except (webbrowser.Error):
-    #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+    def load_region(self):
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == "SVK":
+            self.comboBoxRegion.setCurrentIndex(1)
+        if region == "CZE":
+            self.comboBoxRegion.setCurrentIndex(2)
 
-    def show_settings(self):
-        self.dlg_region.setStart(False)
-        self.dlg_region.show()
-        # Run the dialog event loop
-        result = self.dlg_region.exec_()
+    def set_region(self):
+        s = QgsSettings()
+        region_saved = s.value("geodata_cz_sk/region", "")
+        region = self.comboBoxRegion.currentText()
+        if region_saved != region:
+            if region != '':
+                self.setCursor(Qt.WaitCursor)
+                self.region_handler.applyTransformations(region)
+                QMessageBox.information(None, QApplication.translate("GeoData", "Info", None),
+                                                QApplication.translate("GeoData", "You have to restart QGIS to apply all settings.", None))
+                s = QgsSettings()
+                s.setValue("geodata_cz_sk/region", region)
+                self.load_filtered_sources_into_tree()
+                self.setCursor(Qt.ArrowCursor)

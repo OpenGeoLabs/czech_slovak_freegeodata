@@ -38,7 +38,7 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      </property>
     </widget>
    </item>
-   <item row="13" column="1" colspan="2">
+   <item row="11" column="1" colspan="2">
     <widget class="QLabel" name="labelRuianError">
      <property name="text">
       <string/>
@@ -61,7 +61,7 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      </property>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="14">
+   <item row="0" column="0" rowspan="12">
     <widget class="QTreeWidget" name="treeWidgetSources">
      <property name="minimumSize">
       <size>
@@ -87,16 +87,6 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      </column>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QPushButton" name="pushButtonSettings">
-     <property name="toolTip">
-      <string>Settings</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="1">
     <widget class="QgsFilterLineEdit" name="filterBox">
      <property name="sizePolicy">
@@ -113,17 +103,17 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButtonLoadData">
-     <property name="text">
-      <string>Load Selected Data</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="pushButtonLoadRuianPlugin">
      <property name="text">
       <string>Import data from RUIAN</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButtonLoadData">
+     <property name="text">
+      <string>Load Selected Data</string>
      </property>
     </widget>
    </item>
@@ -136,6 +126,36 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="9" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="labelRegion">
+       <property name="text">
+        <string>Region</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxRegion">
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SVK</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CZE</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

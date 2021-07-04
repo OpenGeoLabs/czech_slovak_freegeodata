@@ -4,12 +4,12 @@
 <context>
     <name>GeoData</name>
     <message>
-        <location filename="../Geo_Data.py" line="207"/>
+        <location filename="../Geo_Data.py" line="198"/>
         <source>&amp;GeoData</source>
         <translation>&amp;GeoData</translation>
     </message>
     <message>
-        <location filename="../Geo_Data.py" line="178"/>
+        <location filename="../Geo_Data.py" line="177"/>
         <source>Browse data sources</source>
         <translation>Browse data sources</translation>
     </message>
@@ -24,7 +24,7 @@
         <translation type="obsolete">Can not find web browser to open page about</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog.py" line="420"/>
+        <location filename="../Geo_Data_dialog.py" line="410"/>
         <source>This functionality requires RUIAN plugin</source>
         <translation>This functionality requires RUIAN plugin</translation>
     </message>
@@ -44,37 +44,37 @@
         <translation>Unable to read grids definition file.</translation>
     </message>
     <message>
-        <location filename="../Region_dialog.py" line="67"/>
+        <location filename="../Geo_Data_dialog.py" line="428"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../Region_dialog.py" line="67"/>
+        <location filename="../Geo_Data_dialog.py" line="428"/>
         <source>You have to restart QGIS to apply all settings.</source>
         <translation>You have to restart QGIS to apply all settings.</translation>
     </message>
     <message>
         <location filename="../Geo_Data.py" line="186"/>
         <source>Set region</source>
-        <translation>Set region</translation>
+        <translation type="obsolete">Set region</translation>
     </message>
     <message>
-        <location filename="../Geo_Data.py" line="194"/>
+        <location filename="../Geo_Data.py" line="185"/>
         <source>Save settings to project</source>
         <translation>Save settings to project</translation>
     </message>
     <message>
-        <location filename="../Geo_Data.py" line="217"/>
+        <location filename="../Geo_Data.py" line="208"/>
         <source>You have to set region first in the settings.</source>
         <translation>You have to set region first in the settings.</translation>
     </message>
     <message>
-        <location filename="../Geo_Data.py" line="222"/>
+        <location filename="../Geo_Data.py" line="213"/>
         <source>Settings sucessfully saved into the project.</source>
         <translation>Settings sucessfully saved into the project.</translation>
     </message>
     <message>
-        <location filename="../Geo_Data.py" line="227"/>
+        <location filename="../Geo_Data.py" line="218"/>
         <source>Can not save settings into the project.</source>
         <translation>Can not save settings into the project.</translation>
     </message>
@@ -87,12 +87,12 @@
         <translation>GeoData</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog_base.ui" line="119"/>
+        <location filename="../Geo_Data_dialog_base.ui" line="116"/>
         <source>Load Selected Data</source>
         <translation>Load Selected Data</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog_base.ui" line="126"/>
+        <location filename="../Geo_Data_dialog_base.ui" line="109"/>
         <source>Import data from RUIAN</source>
         <translation>Import data from RUIAN</translation>
     </message>
@@ -113,12 +113,27 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <message>
         <location filename="../Geo_Data_dialog_base.ui" line="93"/>
         <source>Settings</source>
-        <translation>Settings</translation>
+        <translation type="obsolete">Settings</translation>
     </message>
     <message>
-        <location filename="../Geo_Data_dialog_base.ui" line="133"/>
+        <location filename="../Geo_Data_dialog_base.ui" line="123"/>
         <source>Show only sources for selected region</source>
         <translation>Show only sources for selected region</translation>
+    </message>
+    <message>
+        <location filename="../Geo_Data_dialog_base.ui" line="135"/>
+        <source>Region</source>
+        <translation type="unfinished">Region</translation>
+    </message>
+    <message>
+        <location filename="../Geo_Data_dialog_base.ui" line="148"/>
+        <source>SVK</source>
+        <translation type="unfinished">SVK</translation>
+    </message>
+    <message>
+        <location filename="../Geo_Data_dialog_base.ui" line="153"/>
+        <source>CZE</source>
+        <translation type="unfinished">CZE</translation>
     </message>
 </context>
 <context>
@@ -126,22 +141,22 @@ The plugin allows also to open RUIAN plugin dialog for import data from RUIAN se
     <message>
         <location filename="../Region_dialog_base.ui" line="14"/>
         <source>Region</source>
-        <translation>Region</translation>
+        <translation type="obsolete">Region</translation>
     </message>
     <message>
         <location filename="../Region_dialog_base.ui" line="26"/>
         <source>Select your region. It will set default settings suitable for your region.</source>
-        <translation>Select your region. It will set default settings suitable for your region.</translation>
+        <translation type="obsolete">Select your region. It will set default settings suitable for your region.</translation>
     </message>
     <message>
         <location filename="../Region_dialog_base.ui" line="45"/>
         <source>SVK</source>
-        <translation>SVK</translation>
+        <translation type="obsolete">SVK</translation>
     </message>
     <message>
         <location filename="../Region_dialog_base.ui" line="58"/>
         <source>CZE</source>
-        <translation>CZE</translation>
+        <translation type="obsolete">CZE</translation>
     </message>
 </context>
 </TS>
