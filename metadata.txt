@@ -6,7 +6,7 @@
 name=GeoData CZ/SK
 qgisMinimumVersion=3.0
 description=This plugin gathers cz/sk data sources.
-version=0.2
+version=0.3
 author=OpenGeoLabs and contributors
 email=info@gismentors.cz
 
