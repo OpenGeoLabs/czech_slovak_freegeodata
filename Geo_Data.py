@@ -34,7 +34,6 @@ from qgis.utils import *
 from .resources import *
 # Import the code for the dialog
 from .Geo_Data_dialog import GeoDataDialog
-from .Region_dialog import RegionDialog
 import os.path
 
 from .crs_trans.RegionHandler import RegionHandler
@@ -182,14 +181,6 @@ class GeoData:
             parent=self.iface.mainWindow())
 
         icon_path = os.path.join(
-                    os.path.dirname(__file__), 'icons/settings.png')
-        self.add_action(
-                    icon_path,
-                    text=self.tr(u'Set region'),
-                    callback=self.showSettings,
-                    parent=self.iface.mainWindow())
-
-        icon_path = os.path.join(
                             os.path.dirname(__file__), 'icons/save_to_project.png')
         self.add_action(
                     icon_path,
@@ -227,15 +218,6 @@ class GeoData:
                 QMessageBox.information(None, self.tr("Error"),
                                                             self.tr("Can not save settings into the project."))
 
-    def showSettings(self):
-        if self.first_start == True:
-            self.first_start = False
-            self.dlg_region = RegionDialog(self.iface)
-            self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
-
-        if self.dlg_region is not None:
-            self.dlg_region.show()
-
     def run(self):
         """Run method that performs all the real work"""
 
@@ -243,28 +225,15 @@ class GeoData:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-            self.dlg_region = RegionDialog(self.iface)
-            self.dlg_main = GeoDataDialog(self.iface, self.dlg_region)
+            self.dlg_main = GeoDataDialog(self.iface, self.region_handler)
 
-        s = QgsSettings()
-        region = s.value("geodata_cz_sk/region", "")
-        if region == "":
-            # show the dialog
-            self.dlg_region.show()
-            # Run the dialog event loop
-            result = self.dlg_region.exec_()
-            # See if OK was pressed
-            if result:
-                # Do something useful here - delete the line containing pass and
-                # substitute with your code.
-                pass
-        else:
-            # show the dialog
-            self.dlg_main.show()
-            # Run the dialog event loop
-            result = self.dlg_main.exec_()
-            # See if OK was pressed
-            if result:
-                # Do something useful here - delete the line containing pass and
-                # substitute with your code.
-                pass
+
+        # show the dialog
+        self.dlg_main.show()
+        # Run the dialog event loop
+        result = self.dlg_main.exec_()
+        # See if OK was pressed
+        if result:
+            # Do something useful here - delete the line containing pass and
+            # substitute with your code.
+            pass

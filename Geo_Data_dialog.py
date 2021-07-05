@@ -73,20 +73,18 @@ def get_unicoded_list(words: list):
 
 
 class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
-    def __init__(self, iface, regiondialog, parent=None):
+    def __init__(self, iface, regionhandler, parent=None):
         """Constructor."""
         super(GeoDataDialog, self).__init__(parent)
         self.current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
         self.iface = iface
         self.setupUi(self)
-        self.dlg_region = regiondialog
+        self.region_handler = regionhandler
         # self.pushButtonAbout.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/cropped-opengeolabs-logo-small.png")))
         # self.pushButtonAbout.clicked.connect(self.showAbout)
         self.pushButtonLoadRuianPlugin.clicked.connect(self.load_ruian_plugin)
         self.pushButtonLoadData.clicked.connect(self.load_data)
         self.pushButtonSourceOptions.clicked.connect(self.show_source_options_dialog)
-        self.pushButtonSettings.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "icons/settings.png")))
-        self.pushButtonSettings.clicked.connect(self.show_settings)
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
@@ -94,11 +92,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
         self.checkBoxOnlyRegionSources.stateChanged.connect(self.load_filtered_sources_into_tree)
-
-        self.grids = ShiftGridList()
-        self.load_shift_grids()
-        self.transformations = CoordinateTransformationList()
-        self.load_crs_transformations()
+        self.comboBoxRegion.currentIndexChanged.connect(self.set_region)
+        self.load_region()
 
     def get_url(self, config):
         if config['general']['type'].upper() == 'WMS':
@@ -410,115 +405,25 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         if not ruian_found:
             self.labelRuianError.setText(QApplication.translate("GeoData","This functionality requires RUIAN plugin", None))
 
-    # def showAbout(self):
-    #     try:
-    #         webbrowser.get().open("http://opengeolabs.cz")
-    #     except (webbrowser.Error):
-    #         self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None), QApplication.translate("GeoData", "Can not find web browser to open page about", None), level=Qgis.Critical)
+    def load_region(self):
+        s = QgsSettings()
+        region = s.value("geodata_cz_sk/region", "")
+        if region == "SVK":
+            self.comboBoxRegion.setCurrentIndex(1)
+        if region == "CZE":
+            self.comboBoxRegion.setCurrentIndex(2)
 
-    def load_crs_transformations(self):
-        """
-        Loads available transformatios defined in crs_trans.ini
-        """
-
-        projVersion = QgsProjUtils.projVersionMajor()
-
-        transConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "crs_trans.ini")
-        transConfig = configparser.ConfigParser()
-
-        try:
-            transConfig.read(transConfigFile)
-        except Exception:
-            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
-                                                QApplication.translate("GeoData", "Unable to read coordinate transformations definition file.", None),
-                                                level=Qgis.Critical)
-            raise Exception("Unable to read coordinate transformations definition file.")
-
-        for transSection in transConfig:
-            if transSection != "DEFAULT":
-                transSectionContent = transConfig[transSection]
-
-                regions = transSectionContent.get("Regions", None)
-                if isinstance(regions, str) and regions is not None:
-                    regions = regions.split(" ")
-                crsFrom = transSectionContent.get("CrsFrom")
-                crsTo = transSectionContent.get("CrsTo")
-
-                # TransfOld is used only for Proj version 6 and only if present
-                if projVersion == 6 and "transfold" in [x[0] for x in transConfig.items(transSection)]:
-                    transformation = transSectionContent.get("TransfOld")
-                else:
-                    transformation = transSectionContent.get("Transf")
-
-                if projVersion == 6:
-                    grid = transSectionContent.get("GridOld", None)
-                else:
-                    grid = transSectionContent.get("Grid", None)
-
-                if grid is not None and len(self.grids.getGridsByKeys(grid)) != 1:
-                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
-                                                        QApplication.translate("GeoData", "Skipping definition section {} because grid {} is unknown.".format(transSection, grid), None),
-                                                        level=Qgis.Warning,
-                                                        duration=5)
-                    continue
-
-                # print("--------------------\nSection: {}\nRegion: {}\nCrsFrom: {}\nCrsTo: {}\nTransformation: {}\nShiftFile: {}".format(
-                #     transSection, regions, crsFrom, crsTo, transformation, gridFileUrl))
-
-                if regions is None or regions == "" or \
-                   crsFrom is None or crsFrom == "" or \
-                   crsTo is None or crsTo == "" or \
-                   transformation is None or transformation == "":
-                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
-                                                        QApplication.translate("GeoData", "Skipping incomplete transformation definition section {}.".format(transSection), None),
-                                                        level=Qgis.Warning,
-                                                        duration=5)
-                    continue
-
-                try:
-                    transf = CoordinateTransformation(regions, crsFrom, crsTo, transformation, self.grids, grid)
-                    self.transformations.append(transf)
-                except Exception:
-                    continue
-
-    def load_shift_grids(self):
-        """
-        Loads available shift grids defined in grids.ini
-        """
-
-        gridsConfigFile = os.path.join(os.path.dirname(__file__), "crs_trans", "grids.ini")
-        gridsConfig = configparser.ConfigParser()
-
-        try:
-            gridsConfig.read(gridsConfigFile)
-        except Exception:
-            self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Error", None),
-                                                QApplication.translate("GeoData", "Unable to read grids definition file.", None),
-                                                level=Qgis.Critical)
-            raise Exception("Unable to read grids definition file.")
-
-        for grid in gridsConfig:
-            if grid != "DEFAULT":
-                gridContent = gridsConfig[grid]
-
-                gridFileUrl = gridContent.get("GridFileUrl")
-                gridFileName = gridContent.get("GridFileName")
-
-                if gridFileUrl is None or gridFileName is None:
-                    self.iface.messageBar().pushMessage(QApplication.translate("GeoData", "Warning", None),
-                                                        QApplication.translate("GeoData", "Skipping grid definition of grid {}.".format(grid), None),
-                                                        level=Qgis.Warning,
-                                                        duration=5)
-                    continue
-
-                try:
-                    shiftGrid = ShiftGrid(grid, gridFileUrl, gridFileName)
-                    self.grids.append(shiftGrid)
-                except Exception:
-                    continue
-
-    def show_settings(self):
-        self.dlg_region.setStart(False)
-        self.dlg_region.show()
-        # Run the dialog event loop
-        result = self.dlg_region.exec_()
+    def set_region(self):
+        s = QgsSettings()
+        region_saved = s.value("geodata_cz_sk/region", "")
+        region = self.comboBoxRegion.currentText()
+        if region_saved != region:
+            if region != '':
+                self.setCursor(Qt.WaitCursor)
+                self.region_handler.applyTransformations(region)
+                QMessageBox.information(None, QApplication.translate("GeoData", "Info", None),
+                                                QApplication.translate("GeoData", "You have to restart QGIS to apply all settings.", None))
+                s = QgsSettings()
+                s.setValue("geodata_cz_sk/region", region)
+                self.load_filtered_sources_into_tree()
+                self.setCursor(Qt.ArrowCursor)
