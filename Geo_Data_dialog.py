@@ -120,6 +120,9 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
             url = "contextualWMSLegend=0&featureCount=10&crs={crs}&format={frmt}&layers={layer}&styles=default&tileMatrixSet={tilematrixset}&url={url}".format(
                     url=url, tilematrixset=tilematrixset, layer=layer,
                     crs=crs, frmt=frmt)
+            if 'SmoothPixmapTransform' in config['wmts'].keys():
+                spt = config['wmts']['SmoothPixmapTransform']
+                url = "SmoothPixmapTransform=" + str(spt) + "&" + url
             return url
 
 
