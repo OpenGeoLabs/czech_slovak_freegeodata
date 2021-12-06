@@ -39,3 +39,23 @@ class OptionsDialog(QtWidgets.QDialog, FORM_CLASS):
         """Constructor."""
         super(OptionsDialog, self).__init__(parent)
         self.setupUi(self)
+        self.pushButtonConfirm.clicked.connect(self.katuzid_save)
+        self.pushButtonUnconfirm.clicked.connect(self.katuz_clean)
+
+    def katuzid_save(self):
+        katuzidstored = self.lineEdit.text()
+        current_dir_to_id = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        path_to_id = os.path.join(current_dir_to_id, 'data', 'temporar.csv')
+        with open(path_to_id, "w") as writer:
+                writer.write(katuzidstored)
+                writer.close()
+        if not self.lineEdit.text():
+            os.remove(path_to_id)
+
+    def katuz_clean(self):
+        current_dir_to_id = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        path_to_id = os.path.join(current_dir_to_id, 'data', 'temporar.csv')
+        os.remove(path_to_id)
+
+
+
