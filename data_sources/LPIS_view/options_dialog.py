@@ -43,17 +43,18 @@ class OptionsDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
     def accepted(self):
+        current_dir_to_id = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        path_to_id = os.path.join(current_dir_to_id, 'data', 'temporar.csv')
         if self.radioButtonId.isChecked():
             katuzidstored = self.lineEdit.text()
-            current_dir_to_id = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-            path_to_id = os.path.join(current_dir_to_id, 'data', 'temporar.csv')
             with open(path_to_id, "w") as writer:
                 writer.write(katuzidstored)
                 writer.close()
             if not self.lineEdit.text():
-                os.remove(path_to_id)
+                return
         else:
-            os.remove(path_to_id)
-            return
+            if os.path.exists(path_to_id):
+                os.remove(path_to_id)
+
 
 
