@@ -53,23 +53,34 @@ class Lpis(Source):
         # return [-735295, -1105580]
 
     def get_katuzid(self, extent, EPSG):
-        # TODO search for katuzid
-        # We will simply search for just one katuz that is in the center of the map
-        xy = self.get_xy_center(extent, EPSG)
-        current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(current_dir, 'data', 'katuz.csv')
-        mindistance = float('inf')
-        katuzid = None
-        with open(path, "r") as f:
-            katuzreader = csv.reader(f, delimiter=';')
-            for row in katuzreader:
-                distance = math.hypot(abs(int(row[1]) - xy[0]), abs(int(row[2]) - xy[1]))
-                if distance < mindistance:
-                    mindistance = distance
+        direction = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        path_to_read = os.path.join(direction, 'data', 'temporar.csv')
+        if os.path.isfile(path_to_read):
+            katuzid = None
+            with open (path_to_read, "r") as reader:
+                katuzreader = csv.reader(reader, delimiter=';')
+                for row in katuzreader:
                     katuzid = row[0]
-        # print(katuzid)
-        return katuzid
-        # return "798428"
+                reader.close()
+            os.remove(path_to_read)
+            return katuzid
+        else:
+            # We will simply search for just one katuz that is in the center of the map
+            xy = self.get_xy_center(extent, EPSG)
+            current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+            path = os.path.join(current_dir, 'data', 'katuz.csv')
+            mindistance = float('inf')
+            katuzid = None
+            with open(path, "r") as f:
+                katuzreader = csv.reader(f, delimiter=';')
+                for row in katuzreader:
+                    distance = math.hypot(abs(int(row[1]) - xy[0]), abs(int(row[2]) - xy[1]))
+                    if distance < mindistance:
+                        mindistance = distance
+                        katuzid = row[0]
+            # print(katuzid)
+            return katuzid
+            # return "798428"
 
     def get_previous_month(self):
         last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
