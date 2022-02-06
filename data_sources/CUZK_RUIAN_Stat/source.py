@@ -2,7 +2,7 @@ from .. source import Source
 import os
 from qgis.core import QgsVectorLayer, QgsMessageLog
 
-class Most(Source):
+class Stat(Source):
 
     def get_vector(self, extent, EPSG):
         url = 'https://geoportal.cuzk.cz/zakazky/SPH/SPH_SHP_JTSK.zip'
