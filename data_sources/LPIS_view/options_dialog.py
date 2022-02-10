@@ -39,3 +39,22 @@ class OptionsDialog(QtWidgets.QDialog, FORM_CLASS):
         """Constructor."""
         super(OptionsDialog, self).__init__(parent)
         self.setupUi(self)
+        self.buttonBox.accepted.connect(self.accepted)
+
+
+    def accepted(self):
+        current_dir_to_id = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        path_to_id = os.path.join(current_dir_to_id, 'data', 'temporar.csv')
+        if self.radioButtonId.isChecked():
+            katuzidstored = self.lineEdit.text()
+            with open(path_to_id, "w") as writer:
+                writer.write(katuzidstored)
+                writer.close()
+            if not self.lineEdit.text():
+                return
+        else:
+            if os.path.exists(path_to_id):
+                os.remove(path_to_id)
+
+
+
