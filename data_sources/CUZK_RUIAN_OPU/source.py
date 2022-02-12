@@ -8,7 +8,7 @@ class OPU(Source):
         url = 'https://geoportal.cuzk.cz/zakazky/SPH/SPH_SHP_JTSK.zip'
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'SPH_SHP_JTSK.zip')
         self.download_data(url, path, "ČUZK Ruian OPU")
-        path = '/vsizip/' + os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'SPH_SHP_JTSK.zip') + 'SPH_OPU.shp'
+        path = '/vsizip/' + os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'SPH_SHP_JTSK.zip') + '/JTSK/SPH_OPU.shp'
         vector = QgsVectorLayer(path, "OPU", "ogr")
         vector.loadNamedStyle(os.path.dirname(__file__) + '/data/style.qml')
         if not vector.isValid():
