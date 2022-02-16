@@ -34,7 +34,10 @@ The sources now include mapy.cz and hillshade from DEM 5G.
 * https://github.com/PetoP Peter Piesecký
 * https://github.com/jachym Jáchym Čepický
 * https://github.com/landam Martin Landa
+* Miki Michalko
 * https://github.com/jakubsimek97 Jakub Šimek
 * https://github.com/Bambooojooo Jan Kučera
 * https://github.com/misopasko Michal Paško
 * Miki Michalko
+* Janek Mališ
+* Kevin Rucki
