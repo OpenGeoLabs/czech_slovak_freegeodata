@@ -85,7 +85,7 @@ class CoordinateTransformationList(list):
             # It is assumed that grids were already downloaded when plugin had been initialized, thus restart is not requested when transformations are added to project
             if destination == CoordinateTransformationList.CONFIGURATION:
                 iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
-                                               QApplication.translate("GeoData", "QGIS restart is needed to apply transfarmation settings."),
+                                               QApplication.translate("GeoData", "QGIS restart is needed to apply transformation settings."),
                                                level=Qgis.Info)
         else:
             iface.messageBar().pushMessage(QApplication.translate("GeoData", "Info", None),
