@@ -34,7 +34,7 @@ from qgis.utils import *
 from .resources import *
 # Import the code for the dialog
 from .Geo_Data_dialog import GeoDataDialog
-import os.path
+import os.path, sys
 
 from .crs_trans.RegionHandler import RegionHandler
 
@@ -231,7 +231,8 @@ class GeoData:
         # show the dialog
         self.dlg_main.close()
         self.dlg_main.show()
-        self.dlg_main.requestActivate()
+        if sys.platform.startswith('win'):
+            self.dlg_main.requestActivate()
         # Run the dialog event loop
         result = self.dlg_main.exec_()
         # See if OK was pressed
