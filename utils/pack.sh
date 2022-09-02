@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rm ../dist/geodata_cz_sk_0.4.zip
+rm ../dist/geodata_cz_sk_0.5.zip
 
 cd ..
 
