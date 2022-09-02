@@ -23,4 +23,4 @@ cp -r crs_trans dist/czech_slovak_freegeodata/
 cp * dist/cp * dist/czech_slovak_freegeodata/
 
 cd dist
-zip -r geodata_cz_sk_0.4.zip czech_slovak_freegeodata/
+zip -r geodata_cz_sk_0.5.zip czech_slovak_freegeodata/
