@@ -11,6 +11,7 @@ class Kraje(Source):
         path = '/vsizip/' + os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'SPH_SHP_JTSK.zip') + '/JTSK/SPH_KRAJ.shp'
         vector = QgsVectorLayer(path, "Kraje", "ogr")
         vector.loadNamedStyle(os.path.dirname(__file__) + '/data/style.qml')
+        vector.dataProvider().setEncoding(u'Windows-1250')
         if not vector.isValid():
             QgsMessageLog.logMessage("Vrstvu " + path + " se nepodařilo načíst", "GeoData")
             return None
