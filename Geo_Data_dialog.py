@@ -125,6 +125,15 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 url = "SmoothPixmapTransform=" + str(spt) + "&" + url
             return url
 
+    def uncheck_sub_tree(self, item):
+        item.setCheckState(0, Qt.Unchecked);
+        for i in range(item.childCount()):
+            self.uncheck_sub_tree(item.child(i));
+
+    def uncheck_all(self):
+        tree = self.treeWidgetSources
+        for i in range(tree.topLevelItemCount()):
+            self.uncheck_sub_tree(tree.topLevelItem(i))
 
     def load_data(self):
         # print("LOAD DATA")
@@ -140,6 +149,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 elif "PROC" in data_source['type']:
                     if data_source['proc_class'] is not None:
                         self.add_proc_data_source_layer(data_source)
+        self.uncheck_all()
 
     def load_sources_into_tree(self):
 
