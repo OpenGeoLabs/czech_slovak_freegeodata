@@ -41,6 +41,8 @@ from qgis.PyQt.QtWidgets import *
 
 import importlib, inspect
 from .data_sources.source import Source
+from urllib.request import urlopen
+import json
 from .crs_trans.CoordinateTransformation import CoordinateTransformation
 from .crs_trans.CoordinateTransformationList import CoordinateTransformationList
 from .crs_trans.ShiftGrid import ShiftGrid
@@ -88,6 +90,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
+        response = urlopen()
+        statuses = json.loads(response.read())
         self.load_sources_into_tree()
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
@@ -225,7 +229,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 }
             )
 
-            self.load_filtered_sources_into_tree()
+        self.load_filtered_sources_into_tree()
 
     def is_in_region(self, data_source_keywords):
         if not self.checkBoxOnlyRegionSources.isChecked():
