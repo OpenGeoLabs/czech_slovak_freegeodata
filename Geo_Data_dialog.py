@@ -276,6 +276,7 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
                 if "PROC" in data_source['type']:
                     child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
+                child.setIcon(2, QIcon(os.path.join(self.current_dir, 'icons/green.png')))
 
                 child.setData(0, Qt.UserRole, index)
                 if data_source['checked'] == "True":
