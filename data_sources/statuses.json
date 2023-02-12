@@ -1,6 +1,6 @@
 {
-  "AOPK_ChranUzemi": "green",
-  "CENIA_geomorfologie": "green",
+  "AOPK_ChranUzemi": "red",
+  "CENIA_geomorfologie": "orange",
   "CENIA_klima": "green",
   "CENIA_pudni_typy_TKSP_WRB": "green",
   "CENIA_stinovany_relief": "green",

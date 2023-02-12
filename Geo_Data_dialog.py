@@ -90,8 +90,8 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
-        response = urlopen()
-        statuses = json.loads(response.read())
+        response = urlopen("https://raw.githubusercontent.com/OpenGeoLabs/czech_slovak_freegeodata/ruz76/feature/service-status/data_sources/statuses.json")
+        self.statuses = json.loads(response.read())
         self.load_sources_into_tree()
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
@@ -280,7 +280,10 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
                 child.setIcon(0, QIcon(os.path.join(data_source['logo'])))
                 if "PROC" in data_source['type']:
                     child.setIcon(1, QIcon(os.path.join(self.current_dir, 'icons/timer.png')))
-                child.setIcon(2, QIcon(os.path.join(self.current_dir, 'icons/green.png')))
+                if data_source['path'] in self.statuses:
+                    child.setIcon(2, QIcon(os.path.join(self.current_dir, 'icons/' + self.statuses[data_source['path']] + '.png')))
+                else:
+                    child.setIcon(2, QIcon(os.path.join(self.current_dir, 'icons/question.png')))
 
                 child.setData(0, Qt.UserRole, index)
                 if data_source['checked'] == "True":
