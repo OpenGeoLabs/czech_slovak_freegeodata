@@ -90,14 +90,21 @@ class GeoDataDialog(QtWidgets.QDialog, FORM_CLASS):
         self.data_sources = []
         self.treeWidgetSources.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidgetSources.customContextMenuRequested.connect(self.open_context_menu)
-        response = urlopen("https://raw.githubusercontent.com/OpenGeoLabs/czech_slovak_freegeodata/ruz76/feature/service-status/data_sources/statuses.json")
-        self.statuses = json.loads(response.read())
+        self.statuses = {}
+        self.load_statuses()
         self.load_sources_into_tree()
         self.selectedSource = -1
         self.filterBox.valueChanged.connect(self.load_filtered_sources_into_tree)
         self.checkBoxOnlyRegionSources.stateChanged.connect(self.load_filtered_sources_into_tree)
         self.comboBoxRegion.currentIndexChanged.connect(self.set_region)
         self.load_region()
+
+    def load_statuses(self):
+        try:
+            response = urlopen("https://raw.githubusercontent.com/OpenGeoLabs/czech_slovak_freegeodata/ruz76/feature/service-status/data_sources/statuses.json")
+            self.statuses = json.loads(response.read())
+        except:
+            self.statuses = {}
 
     def get_url(self, config):
         if config['general']['type'].upper() == 'WMS':
