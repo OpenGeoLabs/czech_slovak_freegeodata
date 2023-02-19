@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rm ../dist/geodata_cz_sk_0.5.zip
+rm ../dist/geodata_cz_sk_0.6.zip
 
 cd ..
 
@@ -23,4 +23,4 @@ cp -r crs_trans dist/czech_slovak_freegeodata/
 cp * dist/cp * dist/czech_slovak_freegeodata/
 
 cd dist
-zip -r geodata_cz_sk_0.5.zip czech_slovak_freegeodata/
+zip -r geodata_cz_sk_0.6.zip czech_slovak_freegeodata/
