@@ -232,7 +232,12 @@ class GeoData:
         self.dlg_main.close()
         self.dlg_main.show()
         if sys.platform.startswith('win'):
-            self.dlg_main.requestActivate()
+            # For older version of QGIS that does not have requestActivate method
+            try:
+                self.dlg_main.requestActivate()
+            except:
+                do_nothing = 'NOP'
+
         # Run the dialog event loop
         result = self.dlg_main.exec_()
         # See if OK was pressed
